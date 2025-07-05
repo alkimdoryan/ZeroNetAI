@@ -39,7 +39,12 @@ import {
   Info,
   X
 } from 'lucide-react';
-import { IDKitWidget, VerificationLevel } from '@worldcoin/idkit';
+import { IDKitWidget, type ISuccessResult, type IErrorState, VerificationLevel } from '@worldcoin/idkit';
+import { 
+  WORLDID_APP_ID, 
+  WORLDID_ACTION_SAVE_WORKFLOW,
+  getWorldIDErrorMessage 
+} from '../../config/contracts';
 
 // Layout algorithms
 import dagre from 'dagre';
@@ -203,6 +208,7 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
   const [showLayerDropdown, setShowLayerDropdown] = useState(false);
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [isWorkflowSaveVerified, setIsWorkflowSaveVerified] = useState(false);
+  const [saveError, setSaveError] = useState<string>('');
   const [editingNode, setEditingNode] = useState<WorkflowNode | null>(null);
   const [showNodeEditor, setShowNodeEditor] = useState(false);
   
@@ -229,6 +235,18 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
       setVisibleLayers(new Set(layers));
     }
   }, [layers, visibleLayers.size]);
+
+  // WorldID handlers for workflow save
+  const handleWorkflowSaveSuccess = (result: ISuccessResult) => {
+    console.log('WorldID verification successful for workflow save:', result);
+    setSaveError('');
+    setIsWorkflowSaveVerified(true);
+  };
+
+  const handleWorkflowSaveError = (error: IErrorState) => {
+    console.error('WorldID verification hatası:', error);
+    setSaveError(getWorldIDErrorMessage(error.message || 'Bilinmeyen hata'));
+  };
 
   // Node event handlers
   const handleNodeEdit = useCallback((nodeId: string) => {
@@ -919,17 +937,23 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
                   </p>
                 </div>
                 
+                {/* Error Display */}
+                {saveError && (
+                  <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-red-500">⚠️</span>
+                      <p className="text-red-700 text-sm">{saveError}</p>
+                    </div>
+                  </div>
+                )}
+
                 <IDKitWidget
-                  app_id="app_staging_123456789" // Replace with your actual app ID
-                  action="save-workflow"
+                  app_id={WORLDID_APP_ID}
+                  action={WORLDID_ACTION_SAVE_WORKFLOW}
                   verification_level={VerificationLevel.Device}
-                  handleVerify={(proof) => {
-                    console.log('WorldID verification successful for workflow save:', proof);
-                    setIsWorkflowSaveVerified(true);
-                  }}
-                  onSuccess={() => {
-                    console.log('WorldID verification completed for workflow save');
-                  }}
+                  handleVerify={handleWorkflowSaveSuccess}
+                  onSuccess={() => console.log('WorldID verification completed for workflow save')}
+                  onError={handleWorkflowSaveError}
                 >
                   {({ open }) => (
                     <button
@@ -940,6 +964,12 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
                     </button>
                   )}
                 </IDKitWidget>
+
+                <div className="text-center mt-4">
+                  <p className="text-xs text-gray-500">
+                    WorldID uygulaması ile QR kodu tarayın
+                  </p>
+                </div>
               </div>
             ) : (
               <div className="space-y-6">
@@ -966,6 +996,7 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
                     onClick={() => {
                       setShowSaveModal(false);
                       setIsWorkflowSaveVerified(false);
+                      setSaveError('');
                     }}
                     className="px-6 py-3 text-sm font-semibold text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-all duration-200"
                   >
@@ -1389,7 +1420,7 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
                       <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
                         <p><strong>Örnek kullanım:</strong></p>
                         <p>• response.status === 200</p>
-                        <p>• data.amount &gt; 1000</p>
+                                                  <p>• data.amount {'>'} 1000</p>
                         <p>• user.role === 'admin'</p>
                       </div>
                     </div>

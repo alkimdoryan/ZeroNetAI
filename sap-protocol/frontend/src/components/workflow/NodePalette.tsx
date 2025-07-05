@@ -23,7 +23,12 @@ import {
   Layers,
   X
 } from 'lucide-react';
-import { IDKitWidget, VerificationLevel } from '@worldcoin/idkit';
+import { IDKitWidget, type ISuccessResult, type IErrorState, VerificationLevel } from '@worldcoin/idkit';
+import { 
+  WORLDID_APP_ID, 
+  WORLDID_ACTION_CREATE_NODE,
+  getWorldIDErrorMessage 
+} from '../../config/contracts';
 
 interface NodeType {
   id: string;
@@ -204,6 +209,7 @@ export function NodePalette() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [isWorldIDVerified, setIsWorldIDVerified] = useState(false);
+  const [error, setError] = useState<string>('');
   const [newNodeData, setNewNodeData] = useState({
     name: '',
     description: '',
@@ -222,6 +228,17 @@ export function NodePalette() {
                          node.description.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
+
+  const handleWorldIDSuccess = (result: ISuccessResult) => {
+    console.log('WorldID verification successful:', result);
+    setError('');
+    setIsWorldIDVerified(true);
+  };
+
+  const handleWorldIDError = (error: IErrorState) => {
+    console.error('WorldID verification hatası:', error);
+    setError(getWorldIDErrorMessage(error.message || 'Bilinmeyen hata'));
+  };
 
   return (
     <div className="p-6 space-y-6">
@@ -402,17 +419,23 @@ export function NodePalette() {
                   </p>
                 </div>
                 
+                {/* Error Display */}
+                {error && (
+                  <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-red-500">⚠️</span>
+                      <p className="text-red-700 text-sm">{error}</p>
+                    </div>
+                  </div>
+                )}
+                
                 <IDKitWidget
-                  app_id="app_staging_123456789" // Replace with your actual app ID
-                  action="create-custom-node"
+                  app_id={WORLDID_APP_ID}
+                  action={WORLDID_ACTION_CREATE_NODE}
                   verification_level={VerificationLevel.Device}
-                  handleVerify={(proof) => {
-                    console.log('WorldID verification successful:', proof);
-                    setIsWorldIDVerified(true);
-                  }}
-                  onSuccess={() => {
-                    console.log('WorldID verification completed');
-                  }}
+                  handleVerify={handleWorldIDSuccess}
+                  onSuccess={() => console.log('WorldID verification completed')}
+                  onError={handleWorldIDError}
                 >
                   {({ open }) => (
                     <button
@@ -423,58 +446,62 @@ export function NodePalette() {
                     </button>
                   )}
                 </IDKitWidget>
+
+                <div className="text-center">
+                  <p className="text-xs text-gray-500">
+                    WorldID uygulaması ile QR kodu tarayın
+                  </p>
+                </div>
               </div>
             ) : (
               <div className="space-y-6">
-                <div className="text-center">
-                  <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-green-600 text-2xl">✓</span>
+                <div className="text-center mb-4">
+                  <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                    <span className="text-green-600 text-xl">✓</span>
                   </div>
-                  <p className="text-sm text-green-600 mb-6">Kimlik doğrulaması başarılı!</p>
+                  <p className="text-sm text-green-600 font-medium">Kimlik doğrulama başarılı!</p>
                 </div>
                 
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Node Adı
-                    </label>
-                    <input
-                      type="text"
-                      value={newNodeData.name}
-                      onChange={(e) => setNewNodeData({...newNodeData, name: e.target.value})}
-                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
-                      placeholder="Örn: Özel API Handler"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Açıklama
-                    </label>
-                    <textarea
-                      value={newNodeData.description}
-                      onChange={(e) => setNewNodeData({...newNodeData, description: e.target.value})}
-                      rows={3}
-                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
-                      placeholder="Node'unuzun ne yaptığını açıklayın..."
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Kategori
-                    </label>
-                    <select
-                      value={newNodeData.category}
-                      onChange={(e) => setNewNodeData({...newNodeData, category: e.target.value})}
-                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
-                    >
-                      <option value="custom">Özel</option>
-                      <option value="connectors">Bağlayıcılar</option>
-                      <option value="logic">Mantık</option>
-                      <option value="utility">Yardımcı</option>
-                    </select>
-                  </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Node Adı
+                  </label>
+                  <input
+                    type="text"
+                    value={newNodeData.name}
+                    onChange={(e) => setNewNodeData({...newNodeData, name: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    placeholder="Örn: Web Scraper Node"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Açıklama
+                  </label>
+                  <textarea
+                    value={newNodeData.description}
+                    onChange={(e) => setNewNodeData({...newNodeData, description: e.target.value})}
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    placeholder="Node'un ne yaptığını açıklayın..."
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Kategori
+                  </label>
+                  <select
+                    value={newNodeData.category}
+                    onChange={(e) => setNewNodeData({...newNodeData, category: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  >
+                    <option value="custom">Özel</option>
+                    <option value="connectors">Bağlayıcılar</option>
+                    <option value="logic">Mantık</option>
+                    <option value="utility">Yardımcı</option>
+                  </select>
                 </div>
                 
                 <div className="flex justify-end space-x-3">
@@ -482,6 +509,7 @@ export function NodePalette() {
                     onClick={() => {
                       setShowCreateModal(false);
                       setIsWorldIDVerified(false);
+                      setError('');
                       setNewNodeData({name: '', description: '', category: 'custom', parameters: []});
                     }}
                     className="px-6 py-3 text-sm font-semibold text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-all duration-200"
@@ -495,6 +523,7 @@ export function NodePalette() {
                         // Here you would save the custom node
                         setShowCreateModal(false);
                         setIsWorldIDVerified(false);
+                        setError('');
                         setNewNodeData({name: '', description: '', category: 'custom', parameters: []});
                         alert('Özel node başarıyla oluşturuldu!');
                       } else {
