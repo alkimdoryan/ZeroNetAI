@@ -230,6 +230,71 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
     }
   }, [layers, visibleLayers.size]);
 
+  // Node event handlers
+  const handleNodeEdit = useCallback((nodeId: string) => {
+    const node = nodes.find(n => n.id === nodeId);
+    if (node) {
+      setEditingNode(node);
+      setShowNodeEditor(true);
+    }
+  }, [nodes]);
+
+  const handleNodeUpdate = useCallback((nodeId: string, newData: any) => {
+    setNodes(nds => nds.map(node => 
+      node.id === nodeId 
+        ? { ...node, data: { ...node.data, ...newData } }
+        : node
+    ));
+  }, [setNodes]);
+
+  const handleNodeDelete = useCallback((nodeId: string) => {
+    setNodes(nds => nds.filter(node => node.id !== nodeId));
+    setEdges(eds => eds.filter(edge => edge.source !== nodeId && edge.target !== nodeId));
+  }, [setNodes, setEdges]);
+
+  const handleNodeCopy = useCallback((nodeId: string) => {
+    const node = nodes.find(n => n.id === nodeId);
+    if (node) {
+      const newNode = {
+        ...node,
+        id: `${node.id}_copy_${Date.now()}`,
+        position: {
+          x: node.position.x + 50,
+          y: node.position.y + 50,
+        },
+        data: {
+          ...node.data,
+          label: `${node.data.label} (Kopya)`,
+        },
+      };
+      setNodes(nds => [...nds, newNode]);
+    }
+  }, [nodes, setNodes]);
+
+  const handleNodeExecute = useCallback((nodeId: string) => {
+    const node = nodes.find(n => n.id === nodeId);
+    if (node) {
+      // Update node status to running
+      setNodes(nds => nds.map(n => 
+        n.id === nodeId 
+          ? { ...n, data: { ...n.data, status: 'running' } }
+          : n
+      ));
+
+      // Simulate execution
+      setTimeout(() => {
+        setNodes(nds => nds.map(n => 
+          n.id === nodeId 
+            ? { ...n, data: { ...n.data, status: 'success', lastExecution: new Date() } }
+            : n
+        ));
+
+        // Show success message
+        alert(`"${node.data.label}" node'u başarıyla çalıştırıldı!`);
+      }, 2000);
+    }
+  }, [nodes, setNodes]);
+
   // Connect callback
   const onConnect: OnConnect = useCallback(
     (params) => {
@@ -401,76 +466,6 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
       applyLayout('dagre');
     }
   }, [initialNodes.length]); // Only trigger on initial load
-
-  // Node handlers
-  const handleNodeEdit = useCallback((nodeId: string) => {
-    const node = nodes.find(n => n.id === nodeId);
-    if (node) {
-      setEditingNode(node);
-      setShowNodeEditor(true);
-    }
-  }, [nodes]);
-
-  const handleNodeDelete = useCallback((nodeId: string) => {
-    setNodes(nodes => nodes.filter(n => n.id !== nodeId));
-    setEdges(edges => edges.filter(e => e.source !== nodeId && e.target !== nodeId));
-  }, [setNodes, setEdges]);
-
-  const handleNodeCopy = useCallback((nodeId: string) => {
-    const node = nodes.find(n => n.id === nodeId);
-    if (node) {
-      const newNode: WorkflowNode = {
-        ...node,
-        id: `node_${Date.now()}`,
-        position: {
-          x: node.position.x + 50,
-          y: node.position.y + 50,
-        },
-        data: {
-          ...node.data,
-          label: `${node.data.label} (kopya)`,
-        },
-      };
-      setNodes(nodes => [...nodes, newNode]);
-    }
-  }, [nodes, setNodes]);
-
-  const handleNodeExecute = useCallback((nodeId: string) => {
-    const node = nodes.find(n => n.id === nodeId);
-    if (node) {
-      // BitNet agent execution simulation
-      setNodes(nodes => nodes.map(n => 
-        n.id === nodeId 
-          ? { ...n, data: { ...n.data, status: 'running' as const } }
-          : n
-      ));
-      
-      // Simulate execution
-      setTimeout(() => {
-        setNodes(nodes => nodes.map(n => 
-          n.id === nodeId 
-            ? { 
-                ...n, 
-                data: { 
-                  ...n.data, 
-                  status: 'success' as const,
-                  lastExecution: new Date(),
-                  executionTime: Math.floor(Math.random() * 500) + 100
-                } 
-              }
-            : n
-        ));
-      }, 2000);
-    }
-  }, [nodes, setNodes]);
-
-  const handleNodeUpdate = useCallback((nodeId: string, newData: any) => {
-    setNodes(nodes => nodes.map(n => 
-      n.id === nodeId 
-        ? { ...n, data: { ...n.data, ...newData } }
-        : n
-    ));
-  }, [setNodes]);
 
   // Close stats dropdown when clicking outside
   useEffect(() => {
@@ -1141,11 +1136,11 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          URL
+                          URL <span className="text-red-500">*</span>
                         </label>
                         <input
                           type="url"
-                          value={editingNode.data.config?.url || 'https://api.example.com/endpoint'}
+                          value={editingNode.data.config?.url || 'https://api.example.com/v1/resource'}
                           onChange={(e) => setEditingNode({
                             ...editingNode,
                             data: { 
@@ -1154,12 +1149,13 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
                             }
                           })}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="https://api.example.com/v1/resource"
                         />
                       </div>
                       
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          HTTP Metodu
+                          HTTP Metodu <span className="text-red-500">*</span>
                         </label>
                         <select
                           value={editingNode.data.config?.method || 'GET'}
@@ -1195,7 +1191,173 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
                           })}
                           rows={3}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder='{"Authorization": "Bearer token"}'
+                          placeholder='{"Authorization": "Bearer token", "Content-Type": "application/json"}'
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Body (JSON)
+                        </label>
+                        <textarea
+                          value={editingNode.data.config?.body || '{"name": "{{name}}", "email": "{{email}}"}'}
+                          onChange={(e) => setEditingNode({
+                            ...editingNode,
+                            data: { 
+                              ...editingNode.data, 
+                              config: { ...editingNode.data.config, body: e.target.value }
+                            }
+                          })}
+                          rows={4}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder='{"name": "{{name}}", "email": "{{email}}"}'
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {editingNode.data.category === 'database-query' && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Veritabanı Sorgusu Ayarları</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Bağlantı ID <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={editingNode.data.config?.connectionId || 'mysql-main'}
+                          onChange={(e) => setEditingNode({
+                            ...editingNode,
+                            data: { 
+                              ...editingNode.data, 
+                              config: { ...editingNode.data.config, connectionId: e.target.value }
+                            }
+                          })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="mysql-main"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          SQL Sorgusu <span className="text-red-500">*</span>
+                        </label>
+                        <textarea
+                          value={editingNode.data.config?.query || 'SELECT * FROM orders WHERE status = ?'}
+                          onChange={(e) => setEditingNode({
+                            ...editingNode,
+                            data: { 
+                              ...editingNode.data, 
+                              config: { ...editingNode.data.config, query: e.target.value }
+                            }
+                          })}
+                          rows={4}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="SELECT * FROM orders WHERE status = ?"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Parametreler (JSON)
+                        </label>
+                        <textarea
+                          value={editingNode.data.config?.parameters || '[{"name": "status", "value": "pending"}]'}
+                          onChange={(e) => setEditingNode({
+                            ...editingNode,
+                            data: { 
+                              ...editingNode.data, 
+                              config: { ...editingNode.data.config, parameters: e.target.value }
+                            }
+                          })}
+                          rows={3}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder='[{"name": "status", "value": "pending"}]'
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {editingNode.data.category === 'email-send' && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">E-posta Gönderme Ayarları</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Alıcılar <span className="text-red-500">*</span>
+                        </label>
+                        <textarea
+                          value={editingNode.data.config?.to || '["user@example.com"]'}
+                          onChange={(e) => setEditingNode({
+                            ...editingNode,
+                            data: { 
+                              ...editingNode.data, 
+                              config: { ...editingNode.data.config, to: e.target.value }
+                            }
+                          })}
+                          rows={2}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder='["user@example.com", "admin@example.com"]'
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Konu <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={editingNode.data.config?.subject || 'Sipariş Onayı'}
+                          onChange={(e) => setEditingNode({
+                            ...editingNode,
+                            data: { 
+                              ...editingNode.data, 
+                              config: { ...editingNode.data.config, subject: e.target.value }
+                            }
+                          })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="Sipariş Onayı"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          İçerik <span className="text-red-500">*</span>
+                        </label>
+                        <textarea
+                          value={editingNode.data.config?.body || 'Sayın {{name}},\n\nSiparişiniz başarıyla alındı.\n\nTeşekkürler.'}
+                          onChange={(e) => setEditingNode({
+                            ...editingNode,
+                            data: { 
+                              ...editingNode.data, 
+                              config: { ...editingNode.data.config, body: e.target.value }
+                            }
+                          })}
+                          rows={6}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="Sayın {{name}},\n\nSiparişiniz başarıyla alındı.\n\nTeşekkürler."
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Ekler (JSON)
+                        </label>
+                        <textarea
+                          value={editingNode.data.config?.attachments || '[]'}
+                          onChange={(e) => setEditingNode({
+                            ...editingNode,
+                            data: { 
+                              ...editingNode.data, 
+                              config: { ...editingNode.data.config, attachments: e.target.value }
+                            }
+                          })}
+                          rows={2}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder='[{"filename": "invoice.pdf", "path": "/files/invoice.pdf"}]'
                         />
                       </div>
                     </div>
@@ -1208,20 +1370,323 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Koşul (JavaScript)
+                          Koşul İfadesi <span className="text-red-500">*</span>
                         </label>
                         <textarea
-                          value={editingNode.data.config?.condition || 'return data.value > 100;'}
+                          value={editingNode.data.config?.expression || 'data.value > 100'}
                           onChange={(e) => setEditingNode({
                             ...editingNode,
                             data: { 
                               ...editingNode.data, 
-                              config: { ...editingNode.data.config, condition: e.target.value }
+                              config: { ...editingNode.data.config, expression: e.target.value }
                             }
                           })}
                           rows={4}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="return data.value > 100;"
+                          placeholder="data.value > 100 && data.status === 'active'"
+                        />
+                      </div>
+                      <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
+                        <p><strong>Örnek kullanım:</strong></p>
+                        <p>• response.status === 200</p>
+                        <p>• data.amount &gt; 1000</p>
+                        <p>• user.role === 'admin'</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {editingNode.data.category === 'loop' && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Döngü Ayarları</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Koleksiyon <span className="text-red-500">*</span>
+                        </label>
+                        <textarea
+                          value={editingNode.data.config?.collection || '["user1", "user2", "user3"]'}
+                          onChange={(e) => setEditingNode({
+                            ...editingNode,
+                            data: { 
+                              ...editingNode.data, 
+                              config: { ...editingNode.data.config, collection: e.target.value }
+                            }
+                          })}
+                          rows={3}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder='["user1", "user2", "user3"]'
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Döngü Türü <span className="text-red-500">*</span>
+                        </label>
+                        <select
+                          value={editingNode.data.config?.loopType || 'forEach'}
+                          onChange={(e) => setEditingNode({
+                            ...editingNode,
+                            data: { 
+                              ...editingNode.data, 
+                              config: { ...editingNode.data.config, loopType: e.target.value }
+                            }
+                          })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                          <option value="forEach">For Each</option>
+                          <option value="while">While</option>
+                          <option value="parallel">Parallel</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {editingNode.data.category === 'delay' && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Bekleme Ayarları</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Süre (saniye) <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="number"
+                          value={editingNode.data.config?.duration || 5}
+                          onChange={(e) => setEditingNode({
+                            ...editingNode,
+                            data: { 
+                              ...editingNode.data, 
+                              config: { ...editingNode.data.config, duration: parseInt(e.target.value) }
+                            }
+                          })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="5"
+                        />
+                      </div>
+                      <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
+                        <p><strong>Kullanım:</strong> İki API çağrısı arasında 5 saniye bekler.</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {editingNode.data.category === 'transform' && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Dönüşüm Ayarları</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Giriş Yolu <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={editingNode.data.config?.inputPath || 'data.user'}
+                          onChange={(e) => setEditingNode({
+                            ...editingNode,
+                            data: { 
+                              ...editingNode.data, 
+                              config: { ...editingNode.data.config, inputPath: e.target.value }
+                            }
+                          })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="data.user"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Dönüştürme Script'i <span className="text-red-500">*</span>
+                        </label>
+                        <textarea
+                          value={editingNode.data.config?.mappingScript || 'return { fullName: user.firstName + " " + user.lastName }'}
+                          onChange={(e) => setEditingNode({
+                            ...editingNode,
+                            data: { 
+                              ...editingNode.data, 
+                              config: { ...editingNode.data.config, mappingScript: e.target.value }
+                            }
+                          })}
+                          rows={4}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="return { fullName: user.firstName + ' ' + user.lastName }"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {editingNode.data.category === 'error-handler' && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Hata Yönetimi Ayarları</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Hedef Node ID <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={editingNode.data.config?.targetNodeId || 'node_123'}
+                          onChange={(e) => setEditingNode({
+                            ...editingNode,
+                            data: { 
+                              ...editingNode.data, 
+                              config: { ...editingNode.data.config, targetNodeId: e.target.value }
+                            }
+                          })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="node_123"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Yeniden Deneme Sayısı
+                        </label>
+                        <input
+                          type="number"
+                          value={editingNode.data.config?.retryCount || 3}
+                          onChange={(e) => setEditingNode({
+                            ...editingNode,
+                            data: { 
+                              ...editingNode.data, 
+                              config: { ...editingNode.data.config, retryCount: parseInt(e.target.value) }
+                            }
+                          })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="3"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Yedek Node ID
+                        </label>
+                        <input
+                          type="text"
+                          value={editingNode.data.config?.fallbackNodeId || ''}
+                          onChange={(e) => setEditingNode({
+                            ...editingNode,
+                            data: { 
+                              ...editingNode.data, 
+                              config: { ...editingNode.data.config, fallbackNodeId: e.target.value }
+                            }
+                          })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="node_fallback"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {editingNode.data.category === 'custom-function' && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Özel Fonksiyon Ayarları</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          JavaScript Kodu <span className="text-red-500">*</span>
+                        </label>
+                        <textarea
+                          value={editingNode.data.config?.code || 'function execute(data) {\n  // Kodunuzu buraya yazın\n  return data;\n}'}
+                          onChange={(e) => setEditingNode({
+                            ...editingNode,
+                            data: { 
+                              ...editingNode.data, 
+                              config: { ...editingNode.data.config, code: e.target.value }
+                            }
+                          })}
+                          rows={8}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm"
+                          placeholder="function execute(data) {\n  // Kodunuzu buraya yazın\n  return data;\n}"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Giriş Şeması (JSON Schema)
+                        </label>
+                        <textarea
+                          value={editingNode.data.config?.inputSchema || '{"type": "object", "properties": {"value": {"type": "number"}}}'}
+                          onChange={(e) => setEditingNode({
+                            ...editingNode,
+                            data: { 
+                              ...editingNode.data, 
+                              config: { ...editingNode.data.config, inputSchema: e.target.value }
+                            }
+                          })}
+                          rows={3}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder='{"type": "object", "properties": {"value": {"type": "number"}}}'
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {editingNode.data.category === 'notification' && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Bildirim Ayarları</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Kanal <span className="text-red-500">*</span>
+                        </label>
+                        <select
+                          value={editingNode.data.config?.channel || 'Slack'}
+                          onChange={(e) => setEditingNode({
+                            ...editingNode,
+                            data: { 
+                              ...editingNode.data, 
+                              config: { ...editingNode.data.config, channel: e.target.value }
+                            }
+                          })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                          <option value="Slack">Slack</option>
+                          <option value="Teams">Microsoft Teams</option>
+                          <option value="SMS">SMS</option>
+                          <option value="Discord">Discord</option>
+                        </select>
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Mesaj <span className="text-red-500">*</span>
+                        </label>
+                        <textarea
+                          value={editingNode.data.config?.message || 'Workflow tamamlandı: {{workflowName}}'}
+                          onChange={(e) => setEditingNode({
+                            ...editingNode,
+                            data: { 
+                              ...editingNode.data, 
+                              config: { ...editingNode.data.config, message: e.target.value }
+                            }
+                          })}
+                          rows={3}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="Workflow tamamlandı: {{workflowName}}"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Webhook URL
+                        </label>
+                        <input
+                          type="url"
+                          value={editingNode.data.config?.webhookUrl || ''}
+                          onChange={(e) => setEditingNode({
+                            ...editingNode,
+                            data: { 
+                              ...editingNode.data, 
+                              config: { ...editingNode.data.config, webhookUrl: e.target.value }
+                            }
+                          })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="https://hooks.slack.com/services/..."
                         />
                       </div>
                     </div>
