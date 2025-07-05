@@ -50,7 +50,7 @@ export function TaskBoard({ onNavigate }: TaskBoardProps = {}) {
     {
       id: 1,
       description:
-        "Bu tweet'in sentiment analizini yapın: 'Bitcoin yeniden yükselişe geçti! 🚀'",
+        "Perform sentiment analysis on this tweet: 'Bitcoin is rising again! 🚀'",
       creator: '0x1234...5678',
       assignee: '0x0000000000000000000000000000000000000000',
       status: 0,
@@ -61,7 +61,7 @@ export function TaskBoard({ onNavigate }: TaskBoardProps = {}) {
     {
       id: 2,
       description:
-        "Aşağıdaki metni özetleyin: 'Blockchain teknolojisi, merkezi olmayan sistemler...'",
+        "Summarize the following text: 'Blockchain technology, decentralized systems...'",
       creator: '0x8765...4321',
       assignee: '0x0000000000000000000000000000000000000000',
       status: 0,
@@ -71,7 +71,7 @@ export function TaskBoard({ onNavigate }: TaskBoardProps = {}) {
     },
     {
       id: 3,
-      description: 'Bu resmin içeriğini analiz edin ve kategorileyiin',
+      description: 'Analyze and categorize the content of this image',
       creator: '0x9999...1111',
       assignee: address || '0x0000000000000000000000000000000000000000',
       status: 1,
@@ -86,25 +86,25 @@ export function TaskBoard({ onNavigate }: TaskBoardProps = {}) {
       case 0:
         return (
           <span className="px-3 py-1 text-xs font-semibold bg-gradient-to-r from-green-400 to-green-600 text-white rounded-full shadow-lg">
-            Açık
+            Open
           </span>
         );
       case 1:
         return (
           <span className="px-3 py-1 text-xs font-semibold bg-gradient-to-r from-yellow-400 to-yellow-600 text-white rounded-full shadow-lg">
-            Devam Ediyor
+            In Progress
           </span>
         );
       case 2:
         return (
           <span className="px-3 py-1 text-xs font-semibold bg-gradient-to-r from-blue-400 to-blue-600 text-white rounded-full shadow-lg">
-            Tamamlandı
+            Completed
           </span>
         );
       case 3:
         return (
           <span className="px-3 py-1 text-xs font-semibold bg-gradient-to-r from-red-400 to-red-600 text-white rounded-full shadow-lg">
-            İptal Edildi
+            Cancelled
           </span>
         );
       default:
@@ -115,7 +115,7 @@ export function TaskBoard({ onNavigate }: TaskBoardProps = {}) {
   const handleSolveTask = async (taskId: number) => {
     if (!solution.trim()) return;
 
-    console.log('Görev çözümü gönderiliyor:', { 
+    console.log('Submitting task solution:', { 
       taskId, 
       solution, 
       solveMethod, 
@@ -133,8 +133,8 @@ export function TaskBoard({ onNavigate }: TaskBoardProps = {}) {
 
     // BitNet execution simulation for agents
     if (solveMethod === 'agent') {
-      console.log('BitNet Agent çalıştırılıyor:', {
-        prompt: `Görev: ${mockTasks.find(t => t.id === taskId)?.description}\nÇözüm metodu: ${usedModel}\nBeklenen format: ${outputFormat}`,
+      console.log('Running BitNet Agent:', {
+        prompt: `Task: ${mockTasks.find(t => t.id === taskId)?.description}\nSolution method: ${usedModel}\nExpected format: ${outputFormat}`,
         maxTokens: 1000,
         temperature: 0.7
       });
@@ -142,14 +142,14 @@ export function TaskBoard({ onNavigate }: TaskBoardProps = {}) {
 
     // Workflow execution simulation 
     if (solveMethod === 'workflow') {
-      console.log('Workflow çalıştırılıyor:', {
+      console.log('Running Workflow:', {
         workflowName: usedModel,
         inputData: mockTasks.find(t => t.id === taskId)?.description,
         outputFormat: outputFormat
       });
     }
 
-    alert(`Görev çözümü başarıyla gönderildi! ${solveMethod === 'agent' ? 'Agent' : 'Workflow'} ile çözüm işlendi.`);
+    alert(`Task solution submitted successfully! Solution processed with ${solveMethod === 'agent' ? 'Agent' : 'Workflow'}.`);
 
     setSelectedTask(null);
     setSolution('');
@@ -161,7 +161,7 @@ export function TaskBoard({ onNavigate }: TaskBoardProps = {}) {
   const handleCreateTask = async () => {
     if (!newTaskDescription.trim() || !newTaskReward.trim()) return;
 
-    console.log('Yeni görev oluşturuluyor:', { 
+    console.log('Creating new task:', { 
       description: newTaskDescription, 
       reward: newTaskReward 
     });
@@ -189,21 +189,21 @@ export function TaskBoard({ onNavigate }: TaskBoardProps = {}) {
               📋
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">Görev Panosu</h2>
-              <p className="text-gray-600">Açık görevleri görüntüleyin ve çözün</p>
+              <h2 className="text-2xl font-bold text-gray-900">Task Board</h2>
+              <p className="text-gray-600">View and solve available tasks</p>
             </div>
           </div>
           <div className="flex items-center space-x-4">
             <div className="bg-white/80 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/20">
               <span className="text-sm font-medium text-gray-700">
-                Toplam: {mockTasks.length} görev
+                Total: {mockTasks.length} tasks
               </span>
             </div>
             <button 
               onClick={() => setShowCreateModal(true)}
               className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
             >
-              + Yeni Görev Oluştur
+              + Create New Task
             </button>
           </div>
         </div>
@@ -221,7 +221,7 @@ export function TaskBoard({ onNavigate }: TaskBoardProps = {}) {
                 <div className="flex-1">
                   <div className="flex items-center space-x-3 mb-3">
                     <div className="bg-gradient-to-r from-gray-400 to-gray-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                      Görev #{task.id}
+                      Task #{task.id}
                     </div>
                     {getStatusBadge(task.status)}
                   </div>
@@ -250,7 +250,7 @@ export function TaskBoard({ onNavigate }: TaskBoardProps = {}) {
                         🕒
                       </div>
                       <span>
-                        {new Date(task.createdAt).toLocaleString('tr-TR')}
+                        {new Date(task.createdAt).toLocaleString('en-US')}
                       </span>
                     </div>
                   </div>
@@ -262,7 +262,7 @@ export function TaskBoard({ onNavigate }: TaskBoardProps = {}) {
                         onClick={() => setShowSolveOptions(showSolveOptions === task.id ? null : task.id)}
                         className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
                       >
-                        Çöz
+                        Solve
                       </button>
                       
                       {showSolveOptions === task.id && (
@@ -282,8 +282,8 @@ export function TaskBoard({ onNavigate }: TaskBoardProps = {}) {
                                 <span className="text-white text-sm">🤖</span>
                               </div>
                               <div className="flex-1 min-w-0">
-                                <div className="text-sm font-semibold text-gray-900 whitespace-nowrap">Agent Oluştur</div>
-                                <div className="text-xs text-gray-600 whitespace-nowrap">AI agent ile çöz</div>
+                                <div className="text-sm font-semibold text-gray-900 whitespace-nowrap">Create Agent</div>
+                                <div className="text-xs text-gray-600 whitespace-nowrap">Solve with AI agent</div>
                               </div>
                             </button>
                             <button
@@ -301,7 +301,7 @@ export function TaskBoard({ onNavigate }: TaskBoardProps = {}) {
                               </div>
                               <div className="flex-1 min-w-0">
                                 <div className="text-sm font-semibold text-gray-900 whitespace-nowrap">Workflow Design</div>
-                                <div className="text-xs text-gray-600 whitespace-nowrap">Workflow ile çöz</div>
+                                <div className="text-xs text-gray-600 whitespace-nowrap">Solve with workflow</div>
                               </div>
                             </button>
                           </div>
@@ -314,7 +314,7 @@ export function TaskBoard({ onNavigate }: TaskBoardProps = {}) {
                       onClick={() => setSelectedTask(task.id)}
                       className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
                     >
-                      Sonucu Gönder
+                      Submit Result
                     </button>
                   )}
                 </div>
@@ -323,7 +323,7 @@ export function TaskBoard({ onNavigate }: TaskBoardProps = {}) {
               {selectedTask === task.id && (
                 <div className="border-t border-white/20 pt-6">
                   <div className="space-y-6">
-                    {/* Çözüm Yöntemi Bilgisi */}
+                    {/* Solution Method Info */}
                     {solveMethod && (
                       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4">
                         <div className="flex items-center space-x-3">
@@ -338,20 +338,20 @@ export function TaskBoard({ onNavigate }: TaskBoardProps = {}) {
                           </div>
                           <div>
                             <div className="text-sm font-semibold text-blue-900">
-                              {solveMethod === 'agent' ? 'Agent ile Çözüm' : 'Workflow ile Çözüm'}
+                              {solveMethod === 'agent' ? 'Agent Solution' : 'Workflow Solution'}
                             </div>
                             <div className="text-xs text-blue-700">
-                              {solveMethod === 'agent' ? 'AI agent kullanarak çözüm üretiliyor' : 'Workflow tasarımı ile çözüm üretiliyor'}
+                              {solveMethod === 'agent' ? 'Generating solution using AI agent' : 'Generating solution using workflow design'}
                             </div>
                           </div>
                         </div>
                       </div>
                     )}
                     
-                    {/* Çıktı Formatı */}
+                    {/* Output Format */}
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Çıktı Formatı
+                        Output Format
                       </label>
                       <select
                         value={outputFormat}
@@ -366,31 +366,31 @@ export function TaskBoard({ onNavigate }: TaskBoardProps = {}) {
                       </select>
                     </div>
                     
-                    {/* Kullanılan Model/Design */}
+                    {/* Used Model/Design */}
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Kullanılan Model/Design
+                        Used Model/Design
                       </label>
                       <input
                         type="text"
                         value={usedModel}
                         onChange={(e) => setUsedModel(e.target.value)}
                         className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-white/20 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                        placeholder={solveMethod === 'agent' ? 'Örn: BitNet-LLM-v2' : 'Örn: Sentiment-Analysis-Workflow'}
+                        placeholder={solveMethod === 'agent' ? 'e.g. BitNet-LLM-v2' : 'e.g. Sentiment-Analysis-Workflow'}
                       />
                     </div>
                     
-                    {/* Çözüm */}
+                    {/* Solution */}
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Çözümünüz
+                        Your Solution
                       </label>
                       <textarea
                         value={solution}
                         onChange={(e) => setSolution(e.target.value)}
                         rows={4}
                         className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-white/20 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                        placeholder="Görev çözümünüzü detaylı bir şekilde buraya yazın..."
+                        placeholder="Write your detailed task solution here..."
                       />
                     </div>
                     
@@ -398,19 +398,21 @@ export function TaskBoard({ onNavigate }: TaskBoardProps = {}) {
                       <button
                         onClick={() => {
                           setSelectedTask(null);
+                          setSolution('');
                           setSolveMethod(null);
                           setUsedModel('');
                           setOutputFormat('json');
                         }}
-                        className="px-6 py-3 text-sm font-semibold text-gray-700 bg-white/80 backdrop-blur-sm rounded-xl border border-white/20 hover:bg-white/90 transition-all duration-200"
+                        className="px-6 py-3 text-sm font-semibold text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-all duration-200"
                       >
-                        İptal
+                        Cancel
                       </button>
                       <button
                         onClick={() => handleSolveTask(task.id)}
-                        className="px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                        disabled={!solution.trim()}
+                        className="px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        Sonucu Gönder
+                        Submit Solution
                       </button>
                     </div>
                   </div>
@@ -428,16 +430,16 @@ export function TaskBoard({ onNavigate }: TaskBoardProps = {}) {
             📋
           </div>
           <h3 className="text-xl font-semibold text-gray-900 mb-2">
-            Henüz görev yok
+            No tasks available
           </h3>
           <p className="text-gray-600 mb-6">
-            İlk görevi oluşturmak için yukarıdaki butona tıklayın
+            Click the button above to create the first task
           </p>
           <button 
             onClick={() => setShowCreateModal(true)}
             className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
           >
-            + Yeni Görev Oluştur
+            + Create New Task
           </button>
         </div>
       )}
@@ -447,7 +449,7 @@ export function TaskBoard({ onNavigate }: TaskBoardProps = {}) {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl border border-white/20">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-2xl font-bold text-gray-900">Yeni Görev Oluştur</h3>
+              <h3 className="text-2xl font-bold text-gray-900">Create New Task</h3>
               <button
                 onClick={() => setShowCreateModal(false)}
                 className="text-gray-400 hover:text-gray-600 text-xl"
@@ -459,27 +461,27 @@ export function TaskBoard({ onNavigate }: TaskBoardProps = {}) {
             <div className="space-y-6">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Görev Açıklaması
+                  Task Description
                 </label>
                 <textarea
                   value={newTaskDescription}
                   onChange={(e) => setNewTaskDescription(e.target.value)}
                   rows={4}
                   className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-white/20 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                  placeholder="Görev açıklamasını detaylı bir şekilde buraya yazın..."
+                  placeholder="Write the task description in detail here..."
                 />
               </div>
               
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Ödül Miktarı (Token)
+                  Reward Amount (Token)
                 </label>
                 <input
                   type="number"
                   value={newTaskReward}
                   onChange={(e) => setNewTaskReward(e.target.value)}
                   className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-white/20 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                  placeholder="Örn: 1.5"
+                  placeholder="e.g. 1.5"
                   step="0.1"
                   min="0"
                 />
@@ -490,13 +492,13 @@ export function TaskBoard({ onNavigate }: TaskBoardProps = {}) {
                   onClick={() => setShowCreateModal(false)}
                   className="px-6 py-3 text-sm font-semibold text-gray-700 bg-white/80 backdrop-blur-sm rounded-xl border border-white/20 hover:bg-white/90 transition-all duration-200"
                 >
-                  İptal
+                  Cancel
                 </button>
                 <button
                   onClick={handleCreateTask}
                   className="px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
                 >
-                  Görevi Oluştur
+                  Create Task
                 </button>
               </div>
             </div>

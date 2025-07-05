@@ -282,7 +282,7 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
         },
         data: {
           ...node.data,
-          label: `${node.data.label} (Kopya)`,
+          label: `${node.data.label} (Copy)`,
         },
       };
       setNodes(nds => [...nds, newNode]);
@@ -387,21 +387,21 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
   // Helper functions for new nodes
   const getNodeLabel = (type: string): string => {
     const labels: Record<string, string> = {
-      'trigger': 'Tetikleyici',
+      'trigger': 'Trigger',
       'agent': 'Agent',
-      'condition': 'Koşul',
-      'connector': 'Bağlayıcı',
-      'http-request': 'HTTP İsteği',
-      'database-query': 'Veritabanı Sorgusu',
-      'email-send': 'E-posta Gönder',
-      'notification': 'Bildirim',
-      'loop': 'Döngü',
-      'delay': 'Bekleme',
-      'transform': 'Dönüşüm',
-      'error-handler': 'Hata Yöneticisi',
-      'custom-function': 'Özel Fonksiyon',
+      'condition': 'Condition',
+      'connector': 'Connector',
+      'http-request': 'HTTP Request',
+      'database-query': 'Database Query',
+      'email-send': 'Send Email',
+      'notification': 'Notification',
+      'loop': 'Loop',
+      'delay': 'Delay',
+      'transform': 'Transform',
+      'error-handler': 'Error Handler',
+      'custom-function': 'Custom Function',
     };
-    return labels[type] || 'Yeni Node';
+    return labels[type] || 'New Node';
   };
 
   const getNodeCategory = (type: string): WorkflowNode['data']['category'] => {
@@ -425,21 +425,21 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
 
   const getNodeDescription = (type: string): string => {
     const descriptions: Record<string, string> = {
-      'trigger': 'Workflow\'u başlatır',
-      'agent': 'AI agent görevi',
-      'condition': 'Koşullu dallanma',
-      'connector': 'Harici sistem bağlantısı',
-      'http-request': 'API çağrısı yapar',
-      'database-query': 'Veritabanı işlemi',
-      'email-send': 'E-posta gönderir',
-      'notification': 'Bildirim gönderir',
-      'loop': 'Döngü işlemi',
-      'delay': 'Bekleme süresi',
-      'transform': 'Veri dönüşümü',
-      'error-handler': 'Hata yönetimi',
-      'custom-function': 'Özel kod çalıştırır',
+      'trigger': 'Starts the workflow',
+      'agent': 'AI agent task',
+      'condition': 'Conditional branching',
+      'connector': 'External system connection',
+      'http-request': 'Makes API calls',
+      'database-query': 'Database operation',
+      'email-send': 'Sends emails',
+      'notification': 'Sends notifications',
+      'loop': 'Loop operation',
+      'delay': 'Wait time',
+      'transform': 'Data transformation',
+      'error-handler': 'Error management',
+      'custom-function': 'Runs custom code',
     };
-    return descriptions[type] || 'Yeni node';
+    return descriptions[type] || 'New node';
   };
 
   const getNodeIcon = (type: string): string => {
@@ -623,7 +623,7 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-900">Workflow Designer Pro</h1>
-                <p className="text-sm text-gray-600">Profesyonel workflow tasarım ortamı</p>
+                <p className="text-sm text-gray-600">Professional workflow design environment</p>
               </div>
             </div>
           </div>
@@ -637,7 +637,7 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
             <button
               onClick={() => setShowShortcuts(!showShortcuts)}
               className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-              title="Klavye kısayolları (?)"
+              title="Keyboard shortcuts (?)"
             >
               <Command className="w-5 h-5" />
             </button>
@@ -649,7 +649,7 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
               className="px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2"
             >
               <Save className="w-4 h-4" />
-              <span>Kaydet</span>
+              <span>Save</span>
             </button>
           </div>
         </div>
@@ -672,10 +672,10 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
                 <h3 
                   className="text-sm font-semibold text-gray-900 mb-3 flex items-center space-x-2 cursor-pointer hover:text-blue-600 transition-colors"
                   onClick={() => setShowLayerDropdown(!showLayerDropdown)}
-                  title="Katman yönetimi"
+                  title="Layer management"
                 >
                   <Layers className="w-4 h-4" />
-                  <span>Katmanlar</span>
+                  <span>Layers</span>
                   <span className="text-xs text-gray-500 ml-auto">
                     ({visibleLayers.size}/{layers.length})
                   </span>
@@ -687,26 +687,26 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
                 {showLayerDropdown && (
                   <div className="bg-white border border-gray-200 rounded-xl shadow-lg p-3 mb-3">
                     <div className="space-y-3">
-                      {/* Tümünü Seç/Kaldır */}
+                      {/* Select All/None */}
                       <div className="flex justify-between items-center p-2 bg-gray-50 rounded-lg">
-                        <span className="text-xs font-semibold text-gray-700">Katman Kontrolü</span>
+                        <span className="text-xs font-semibold text-gray-700">Layer Control</span>
                         <div className="flex space-x-2">
                           <button
                             onClick={() => setVisibleLayers(new Set(layers))}
                             className="text-xs px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
                           >
-                            Tümü
+                            All
                           </button>
                           <button
                             onClick={() => setVisibleLayers(new Set())}
                             className="text-xs px-2 py-1 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors"
                           >
-                            Hiçbiri
+                            None
                           </button>
                         </div>
                       </div>
                       
-                      {/* Katman Listesi */}
+                      {/* Layer List */}
                       <div className="space-y-2 max-h-32 overflow-y-auto">
                         {layers.map(layer => (
                           <label key={layer} className="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
@@ -732,12 +732,12 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
                         ))}
                       </div>
                       
-                      {/* Onay Butonu */}
+                      {/* Apply Button */}
                       <button
                         onClick={() => setShowLayerDropdown(false)}
                         className="w-full text-xs bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition-colors"
                       >
-                        Uygula
+                        Apply
                       </button>
                     </div>
                   </div>
@@ -748,31 +748,31 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
             {/* Statistics Toggle */}
             <div className="flex justify-between items-center">
               <h3 className="text-sm font-semibold text-gray-900 flex items-center space-x-2">
-                <span>Bilgi</span>
+                <span>Info</span>
               </h3>
-                             <div className="relative stats-dropdown">
-                 <button
-                   onClick={() => setShowStats(!showStats)}
-                   className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-600 hover:text-gray-900"
-                   title="İstatistikleri göster/gizle"
-                 >
-                   <Info className="w-4 h-4" />
-                 </button>
-                 
-                 {/* Statistics Dropdown */}
-                 {showStats && (
-                   <div className="absolute bottom-full right-0 mb-2 bg-white border border-gray-200 rounded-lg shadow-lg p-3 min-w-48 z-10">
+              <div className="relative stats-dropdown">
+                <button
+                  onClick={() => setShowStats(!showStats)}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-600 hover:text-gray-900"
+                  title="Show/hide statistics"
+                >
+                  <Info className="w-4 h-4" />
+                </button>
+                
+                {/* Statistics Dropdown */}
+                {showStats && (
+                  <div className="absolute bottom-full right-0 mb-2 bg-white border border-gray-200 rounded-lg shadow-lg p-3 min-w-48 z-10">
                     <div className="space-y-2 text-xs">
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-600">Toplam Node:</span>
+                        <span className="text-gray-600">Total Nodes:</span>
                         <span className="font-medium text-gray-900">{nodes.length}</span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-600">Bağlantı:</span>
+                        <span className="text-gray-600">Connections:</span>
                         <span className="font-medium text-gray-900">{edges.length}</span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-600">Seçili:</span>
+                        <span className="text-gray-600">Selected:</span>
                         <span className="font-medium text-blue-600">{selectedNodes.length}</span>
                       </div>
                       <div className="flex justify-between items-center">
@@ -875,7 +875,7 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4 max-h-96 overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">Klavye Kısayolları</h3>
+              <h3 className="text-lg font-semibold text-gray-900">Keyboard Shortcuts</h3>
               <button
                 onClick={() => setShowShortcuts(false)}
                 className="text-gray-400 hover:text-gray-600"
@@ -885,17 +885,17 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
             </div>
             <div className="space-y-3 text-sm">
               {[
-                { key: '⌘S', desc: 'Kaydet' },
-                { key: '⌘L', desc: 'Yükle' },
-                { key: '⌘F', desc: 'Sığdır' },
-                { key: 'G', desc: 'Grid Aç/Kapa' },
-                { key: '⌘1', desc: 'Hierarşik Layout' },
-                { key: '⌘2', desc: 'Ağaç Layout' },
+                { key: '⌘S', desc: 'Save' },
+                { key: '⌘L', desc: 'Load' },
+                { key: '⌘F', desc: 'Fit View' },
+                { key: 'G', desc: 'Toggle Grid' },
+                { key: '⌘1', desc: 'Hierarchical Layout' },
+                { key: '⌘2', desc: 'Tree Layout' },
                 { key: '⌘3', desc: 'Grid Layout' },
-                { key: '⌘4', desc: 'Dairesel Layout' },
-                { key: 'Delete', desc: 'Seçili Node\'ları Sil' },
-                { key: '?', desc: 'Bu Yardım' },
-                { key: 'Esc', desc: 'Seçimi Temizle' },
+                { key: '⌘4', desc: 'Circular Layout' },
+                { key: 'Delete', desc: 'Delete Selected Nodes' },
+                { key: '?', desc: 'Show This Help' },
+                { key: 'Esc', desc: 'Clear Selection' },
               ].map(shortcut => (
                 <div key={shortcut.key} className="flex justify-between">
                   <span className="text-gray-600">{shortcut.desc}</span>
@@ -914,7 +914,7 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-2xl font-bold text-gray-900">Workflow Kaydet</h3>
+              <h3 className="text-2xl font-bold text-gray-900">Save Workflow</h3>
               <button
                 onClick={() => setShowSaveModal(false)}
                 className="text-gray-400 hover:text-gray-600 text-xl"
@@ -930,10 +930,10 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
                     <Save className="w-8 h-8 text-white" />
                   </div>
                   <h4 className="text-lg font-semibold text-gray-900 mb-2">
-                    Kimlik Doğrulama Gerekli
+                    Identity Verification Required
                   </h4>
                   <p className="text-gray-600 mb-6">
-                    Workflow kaydetmek için WorldID ile kimlik doğrulaması yapmanız gerekiyor.
+                    You need to verify your identity with WorldID to save workflows.
                   </p>
                 </div>
                 
@@ -960,14 +960,14 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
                       onClick={open}
                       className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-6 rounded-xl font-semibold hover:shadow-lg transition-all duration-200"
                     >
-                      WorldID ile Doğrula
+                      Verify with WorldID
                     </button>
                   )}
                 </IDKitWidget>
 
                 <div className="text-center mt-4">
                   <p className="text-xs text-gray-500">
-                    WorldID uygulaması ile QR kodu tarayın
+                    Scan the QR code with the WorldID app
                   </p>
                 </div>
               </div>
@@ -977,16 +977,16 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
                   <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <span className="text-green-600 text-2xl">✓</span>
                   </div>
-                  <p className="text-sm text-green-600 mb-6">Kimlik doğrulaması başarılı!</p>
+                  <p className="text-sm text-green-600 mb-6">Identity verification successful!</p>
                 </div>
                 
                 <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">Toplam Node:</span>
+                    <span className="text-gray-600">Total Nodes:</span>
                     <span className="font-semibold text-gray-900">{nodes.length}</span>
                   </div>
                   <div className="flex items-center justify-between text-sm mt-2">
-                    <span className="text-gray-600">Bağlantı:</span>
+                    <span className="text-gray-600">Connections:</span>
                     <span className="font-semibold text-gray-900">{edges.length}</span>
                   </div>
                 </div>
@@ -1000,18 +1000,18 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
                     }}
                     className="px-6 py-3 text-sm font-semibold text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-all duration-200"
                   >
-                    İptal
+                    Cancel
                   </button>
                   <button
                     onClick={() => {
                       onSave?.(nodes, edges);
                       setShowSaveModal(false);
                       setIsWorkflowSaveVerified(false);
-                      alert('Workflow başarıyla kaydedildi!');
+                      alert('Workflow saved successfully!');
                     }}
                     className="px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl hover:shadow-lg transition-all duration-200"
                   >
-                    Workflow Kaydet
+                    Save Workflow
                   </button>
                 </div>
               </div>
@@ -1027,7 +1027,7 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-bold text-gray-900">
-                  Node Düzenle: {editingNode.data.label}
+                  Edit Node: {editingNode.data.label}
                 </h2>
                 <button
                   onClick={() => setShowNodeEditor(false)}
@@ -1040,11 +1040,11 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
               <div className="space-y-6">
                 {/* Basic Settings */}
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Temel Ayarlar</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Basic Settings</h3>
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Node Adı
+                        Node Name
                       </label>
                       <input
                         type="text"
@@ -1059,7 +1059,7 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
                     
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Açıklama
+                        Description
                       </label>
                       <textarea
                         value={editingNode.data.description || ''}
@@ -1074,7 +1074,7 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Katman
+                        Layer
                       </label>
                       <select
                         value={editingNode.data.layer || 'default'}
@@ -1084,12 +1084,12 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
                         })}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                       >
-                        <option value="default">Varsayılan</option>
-                        <option value="triggers">Tetikleyiciler</option>
-                        <option value="agents">Agentler</option>
-                        <option value="logic">Mantık</option>
-                        <option value="connectors">Bağlayıcılar</option>
-                        <option value="utility">Yardımcı</option>
+                        <option value="default">Default</option>
+                        <option value="triggers">Triggers</option>
+                        <option value="agents">Agents</option>
+                        <option value="logic">Logic</option>
+                        <option value="connectors">Connectors</option>
+                        <option value="utility">Utility</option>
                       </select>
                     </div>
                   </div>
@@ -1098,14 +1098,14 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
                 {/* Node-specific Configuration */}
                 {editingNode.data.category === 'agent' && (
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Agent Ayarları</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Agent Settings</h3>
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           BitNet Prompt
                         </label>
                         <textarea
-                          value={editingNode.data.config?.prompt || 'Sen bir yardımcı AI\'sın. Görevin:'}
+                          value={editingNode.data.config?.prompt || 'You are a helpful AI assistant. Your task:'}
                           onChange={(e) => setEditingNode({
                             ...editingNode,
                             data: { 
@@ -1115,7 +1115,7 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
                           })}
                           rows={4}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="Agent'ın nasıl davranacağını açıklayın..."
+                          placeholder="Describe how the agent should behave..."
                         />
                       </div>
                       
@@ -1163,7 +1163,7 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
 
                 {editingNode.data.category === 'http-request' && (
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">HTTP İsteği Ayarları</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">HTTP Request Settings</h3>
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1186,7 +1186,7 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
                       
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          HTTP Metodu <span className="text-red-500">*</span>
+                          HTTP Method <span className="text-red-500">*</span>
                         </label>
                         <select
                           value={editingNode.data.config?.method || 'GET'}
@@ -1209,7 +1209,7 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
                       
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Header'lar (JSON)
+                          Headers (JSON)
                         </label>
                         <textarea
                           value={editingNode.data.config?.headers || '{"Content-Type": "application/json"}'}
@@ -1250,11 +1250,11 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
 
                 {editingNode.data.category === 'database-query' && (
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Veritabanı Sorgusu Ayarları</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Database Query Settings</h3>
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Bağlantı ID <span className="text-red-500">*</span>
+                          Connection ID <span className="text-red-500">*</span>
                         </label>
                         <input
                           type="text"
@@ -1273,7 +1273,7 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
                       
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          SQL Sorgusu <span className="text-red-500">*</span>
+                          SQL Query <span className="text-red-500">*</span>
                         </label>
                         <textarea
                           value={editingNode.data.config?.query || 'SELECT * FROM orders WHERE status = ?'}
@@ -1292,7 +1292,7 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
                       
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Parametreler (JSON)
+                          Parameters (JSON)
                         </label>
                         <textarea
                           value={editingNode.data.config?.parameters || '[{"name": "status", "value": "pending"}]'}
@@ -1314,11 +1314,11 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
 
                 {editingNode.data.category === 'email-send' && (
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">E-posta Gönderme Ayarları</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Email Sending Settings</h3>
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Alıcılar <span className="text-red-500">*</span>
+                          Recipients <span className="text-red-500">*</span>
                         </label>
                         <textarea
                           value={editingNode.data.config?.to || '["user@example.com"]'}
@@ -1337,11 +1337,11 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
                       
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Konu <span className="text-red-500">*</span>
+                          Subject <span className="text-red-500">*</span>
                         </label>
                         <input
                           type="text"
-                          value={editingNode.data.config?.subject || 'Sipariş Onayı'}
+                          value={editingNode.data.config?.subject || 'Order Confirmation'}
                           onChange={(e) => setEditingNode({
                             ...editingNode,
                             data: { 
@@ -1350,16 +1350,16 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
                             }
                           })}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="Sipariş Onayı"
+                          placeholder="Order Confirmation"
                         />
                       </div>
                       
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          İçerik <span className="text-red-500">*</span>
+                          Content <span className="text-red-500">*</span>
                         </label>
                         <textarea
-                          value={editingNode.data.config?.body || 'Sayın {{name}},\n\nSiparişiniz başarıyla alındı.\n\nTeşekkürler.'}
+                          value={editingNode.data.config?.body || 'Dear {{name}},\n\nYour order has been successfully received.\n\nThank you.'}
                           onChange={(e) => setEditingNode({
                             ...editingNode,
                             data: { 
@@ -1369,13 +1369,13 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
                           })}
                           rows={6}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="Sayın {{name}},\n\nSiparişiniz başarıyla alındı.\n\nTeşekkürler."
+                          placeholder="Dear {{name}},\n\nYour order has been successfully received.\n\nThank you."
                         />
                       </div>
                       
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Ekler (JSON)
+                          Attachments (JSON)
                         </label>
                         <textarea
                           value={editingNode.data.config?.attachments || '[]'}
@@ -1397,11 +1397,11 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
 
                 {editingNode.data.category === 'condition' && (
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Koşul Ayarları</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Condition Settings</h3>
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Koşul İfadesi <span className="text-red-500">*</span>
+                          Condition Expression <span className="text-red-500">*</span>
                         </label>
                         <textarea
                           value={editingNode.data.config?.expression || 'data.value > 100'}
@@ -1418,9 +1418,9 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
                         />
                       </div>
                       <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
-                        <p><strong>Örnek kullanım:</strong></p>
+                        <p><strong>Example usage:</strong></p>
                         <p>• response.status === 200</p>
-                                                  <p>• data.amount {'>'} 1000</p>
+                        <p>• data.amount &gt; 1000</p>
                         <p>• user.role === 'admin'</p>
                       </div>
                     </div>
@@ -1429,11 +1429,11 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
 
                 {editingNode.data.category === 'loop' && (
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Döngü Ayarları</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Loop Settings</h3>
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Koleksiyon <span className="text-red-500">*</span>
+                          Collection <span className="text-red-500">*</span>
                         </label>
                         <textarea
                           value={editingNode.data.config?.collection || '["user1", "user2", "user3"]'}
@@ -1452,7 +1452,7 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
                       
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Döngü Türü <span className="text-red-500">*</span>
+                          Loop Type <span className="text-red-500">*</span>
                         </label>
                         <select
                           value={editingNode.data.config?.loopType || 'forEach'}
@@ -1476,11 +1476,11 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
 
                 {editingNode.data.category === 'delay' && (
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Bekleme Ayarları</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Delay Settings</h3>
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Süre (saniye) <span className="text-red-500">*</span>
+                          Duration (seconds) <span className="text-red-500">*</span>
                         </label>
                         <input
                           type="number"
@@ -1497,7 +1497,7 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
                         />
                       </div>
                       <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
-                        <p><strong>Kullanım:</strong> İki API çağrısı arasında 5 saniye bekler.</p>
+                        <p><strong>Usage:</strong> Waits for 5 seconds between two API calls.</p>
                       </div>
                     </div>
                   </div>
@@ -1505,11 +1505,11 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
 
                 {editingNode.data.category === 'transform' && (
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Dönüşüm Ayarları</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Transform Settings</h3>
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Giriş Yolu <span className="text-red-500">*</span>
+                          Input Path <span className="text-red-500">*</span>
                         </label>
                         <input
                           type="text"
@@ -1528,7 +1528,7 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
                       
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Dönüştürme Script'i <span className="text-red-500">*</span>
+                          Mapping Script <span className="text-red-500">*</span>
                         </label>
                         <textarea
                           value={editingNode.data.config?.mappingScript || 'return { fullName: user.firstName + " " + user.lastName }'}
@@ -1550,11 +1550,11 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
 
                 {editingNode.data.category === 'error-handler' && (
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Hata Yönetimi Ayarları</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Error Management Settings</h3>
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Hedef Node ID <span className="text-red-500">*</span>
+                          Target Node ID <span className="text-red-500">*</span>
                         </label>
                         <input
                           type="text"
@@ -1573,7 +1573,7 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
                       
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Yeniden Deneme Sayısı
+                          Retry Count
                         </label>
                         <input
                           type="number"
@@ -1592,7 +1592,7 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
                       
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Yedek Node ID
+                          Fallback Node ID
                         </label>
                         <input
                           type="text"
@@ -1614,14 +1614,14 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
 
                 {editingNode.data.category === 'custom-function' && (
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Özel Fonksiyon Ayarları</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Custom Function Settings</h3>
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          JavaScript Kodu <span className="text-red-500">*</span>
+                          JavaScript Code <span className="text-red-500">*</span>
                         </label>
                         <textarea
-                          value={editingNode.data.config?.code || 'function execute(data) {\n  // Kodunuzu buraya yazın\n  return data;\n}'}
+                          value={editingNode.data.config?.code || 'function execute(data) {\n  // Write your code here\n  return data;\n}'}
                           onChange={(e) => setEditingNode({
                             ...editingNode,
                             data: { 
@@ -1631,13 +1631,13 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
                           })}
                           rows={8}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm"
-                          placeholder="function execute(data) {\n  // Kodunuzu buraya yazın\n  return data;\n}"
+                          placeholder="function execute(data) {\n  // Write your code here\n  return data;\n}"
                         />
                       </div>
                       
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Giriş Şeması (JSON Schema)
+                          Input Schema (JSON Schema)
                         </label>
                         <textarea
                           value={editingNode.data.config?.inputSchema || '{"type": "object", "properties": {"value": {"type": "number"}}}'}
@@ -1659,11 +1659,11 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
 
                 {editingNode.data.category === 'notification' && (
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Bildirim Ayarları</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Notification Settings</h3>
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Kanal <span className="text-red-500">*</span>
+                          Channel <span className="text-red-500">*</span>
                         </label>
                         <select
                           value={editingNode.data.config?.channel || 'Slack'}
@@ -1685,10 +1685,10 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
                       
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Mesaj <span className="text-red-500">*</span>
+                          Message <span className="text-red-500">*</span>
                         </label>
                         <textarea
-                          value={editingNode.data.config?.message || 'Workflow tamamlandı: {{workflowName}}'}
+                          value={editingNode.data.config?.message || 'Workflow completed: {{workflowName}}'}
                           onChange={(e) => setEditingNode({
                             ...editingNode,
                             data: { 
@@ -1698,7 +1698,7 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
                           })}
                           rows={3}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="Workflow tamamlandı: {{workflowName}}"
+                          placeholder="Workflow completed: {{workflowName}}"
                         />
                       </div>
                       
@@ -1730,7 +1730,7 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
                     onClick={() => setShowNodeEditor(false)}
                     className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
                   >
-                    İptal
+                    Cancel
                   </button>
                   <button
                     onClick={() => {
@@ -1742,7 +1742,7 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
                     }}
                     className="px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:shadow-lg transition-all duration-200"
                   >
-                    Değişiklikleri Kaydet
+                    Save Changes
                   </button>
                 </div>
               </div>

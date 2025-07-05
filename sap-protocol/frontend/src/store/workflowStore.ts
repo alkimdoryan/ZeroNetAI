@@ -174,28 +174,28 @@ export const useWorkflowStore = create<WorkflowState & WorkflowActions>()(
       try {
         const workflow = get().workflows.find((w) => w.id === id);
         if (!workflow) {
-          throw new Error('Workflow bulunamadı');
+          throw new Error('Workflow not found');
         }
 
         // Simulate workflow execution
         set((state) => {
-          state.executionLogs.push(`Workflow "${workflow.name}" başlatıldı`);
+          state.executionLogs.push(`Workflow "${workflow.name}" started`);
         });
 
         // Execute nodes in order (simplified)
         for (const node of workflow.nodes) {
           await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate processing
           set((state) => {
-            state.executionLogs.push(`${node.data.label} işlendi`);
+            state.executionLogs.push(`${node.data.label} processed`);
           });
         }
 
         set((state) => {
-          state.executionLogs.push('Workflow başarıyla tamamlandı');
+          state.executionLogs.push('Workflow completed successfully');
         });
       } catch (error) {
         set((state) => {
-          state.executionLogs.push(`Hata: ${error instanceof Error ? error.message : 'Bilinmeyen hata'}`);
+          state.executionLogs.push(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
         });
       } finally {
         set((state) => {

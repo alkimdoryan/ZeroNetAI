@@ -172,19 +172,19 @@ export class AgentTaskNode extends BaseNode {
       output = sentiments[Math.floor(Math.random() * sentiments.length)];
       confidence = 0.7 + Math.random() * 0.3;
     } else if (params.taskDescription.toLowerCase().includes('summarize') || 
-               params.taskDescription.toLowerCase().includes('özetle')) {
+               params.taskDescription.toLowerCase().includes('summarize')) {
       // Text summarization simulation
-      output = `Bu metinin özeti: ${params.inputData || 'Sağlanan metnin'} ana noktalarını içeren kısa bir özetdir.`;
+      output = `Summary of the text: A brief summary containing the main points of ${params.inputData || 'the provided text'}.`;
       confidence = 0.8 + Math.random() * 0.2;
     } else if (params.taskDescription.toLowerCase().includes('classify') || 
-               params.taskDescription.toLowerCase().includes('kategori')) {
+               params.taskDescription.toLowerCase().includes('category')) {
       // Classification simulation
       const categories = ['technology', 'finance', 'health', 'education', 'entertainment'];
       output = categories[Math.floor(Math.random() * categories.length)];
       confidence = 0.75 + Math.random() * 0.25;
     } else {
       // Generic task simulation
-      output = `Agent ${params.agentId} görev tamamlandı: ${params.taskDescription}`;
+      output = `Agent ${params.agentId} task completed: ${params.taskDescription}`;
       confidence = 0.6 + Math.random() * 0.4;
     }
 

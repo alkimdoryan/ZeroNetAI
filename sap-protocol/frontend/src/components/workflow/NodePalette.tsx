@@ -45,163 +45,160 @@ interface NodeType {
 const nodeTypes: NodeType[] = [
   // Triggers
   {
-    id: 'manual-trigger',
+    id: 'trigger-manual',
     type: 'trigger',
-    label: 'Manuel Başlatma',
-    description: 'Workflow\'u manuel olarak başlatır',
-    icon: <Play className="w-5 h-5" />,
+    label: 'Manual Trigger',
+    description: 'Manually starts the workflow',
+    icon: <Play className="w-4 h-4" />,
     category: 'triggers',
-    gradient: 'from-green-500 to-emerald-600'
+    gradient: 'from-green-400 to-green-600',
+    isNew: true
   },
   {
-    id: 'timer-trigger',
+    id: 'trigger-timer',
     type: 'trigger',
-    label: 'Zamanlayıcı',
-    description: 'Belirli aralıklarla workflow\'u çalıştırır',
-    icon: <Timer className="w-5 h-5" />,
+    label: 'Timer Trigger',
+    description: 'Runs the workflow at specific intervals',
+    icon: <Clock className="w-4 h-4" />,
     category: 'triggers',
-    gradient: 'from-blue-500 to-blue-600'
+    gradient: 'from-blue-400 to-blue-600'
   },
   {
-    id: 'webhook-trigger',
+    id: 'trigger-webhook',
     type: 'trigger',
-    label: 'Webhook',
-    description: 'HTTP istekleri ile workflow\'u tetikler',
-    icon: <Zap className="w-5 h-5" />,
+    label: 'Webhook Trigger',
+    description: 'Triggers the workflow with HTTP requests',
+    icon: <Zap className="w-4 h-4" />,
     category: 'triggers',
-    gradient: 'from-purple-500 to-purple-600'
+    gradient: 'from-purple-400 to-purple-600'
   },
 
   // Agents
   {
     id: 'agent-task',
     type: 'agent',
-    label: 'Agent Görevi',
-    description: 'BitNet LLM agent ile görev işler',
-    icon: <Bot className="w-5 h-5" />,
+    label: 'Agent Task',
+    description: 'Processes tasks with BitNet LLM agent',
+    icon: <Bot className="w-4 h-4" />,
     category: 'agents',
-    gradient: 'from-orange-500 to-red-600'
+    gradient: 'from-orange-400 to-red-600',
+    isNew: true
   },
   {
     id: 'sentiment-agent',
     type: 'agent',
-    label: 'Duygu Analizi',
-    description: 'Metin duygu analizi yapar',
+    label: 'Sentiment Analysis',
+    description: 'Performs sentiment analysis on text',
     icon: <Bot className="w-5 h-5" />,
     category: 'agents',
     gradient: 'from-pink-500 to-rose-600'
   },
 
-  // Logic - Güncellenmiş ve genişletilmiş
+  // Logic - Updated category name
   {
-    id: 'condition',
+    id: 'condition-if',
     type: 'condition',
-    label: 'Koşul (If/Else)',
-    description: 'Akışı koşullu olarak yönlendirir',
-    icon: <GitBranch className="w-5 h-5" />,
+    label: 'Condition (If/Else)',
+    description: 'Conditional branching in workflow',
+    icon: <GitBranch className="w-4 h-4" />,
     category: 'logic',
-    gradient: 'from-yellow-500 to-amber-600'
+    gradient: 'from-yellow-400 to-orange-600'
   },
   {
-    id: 'loop',
+    id: 'loop-foreach',
     type: 'loop',
-    label: 'Döngü',
-    description: 'Koleksiyon üzerinde yineleme yapar',
-    icon: <RefreshCw className="w-5 h-5" />,
+    label: 'Loop (For Each)',
+    description: 'Iterates over collections of data',
+    icon: <RefreshCw className="w-4 h-4" />,
     category: 'logic',
-    gradient: 'from-indigo-500 to-purple-600',
-    isNew: true
+    gradient: 'from-purple-400 to-indigo-600'
   },
 
-  // Connectors - Genişletilmiş
+  // Connectors
   {
     id: 'http-request',
     type: 'http-request',
-    label: 'HTTP İsteği',
-    description: 'Harici API\'lere HTTP istekleri gönderir',
-    icon: <Globe className="w-5 h-5" />,
+    label: 'HTTP Request',
+    description: 'Makes HTTP API calls',
+    icon: <Globe className="w-4 h-4" />,
     category: 'connectors',
-    gradient: 'from-slate-500 to-gray-600'
+    gradient: 'from-blue-400 to-indigo-600'
   },
   {
     id: 'database-query',
     type: 'database-query',
-    label: 'Veritabanı Sorgusu',
-    description: 'SQL tabanlı veritabanı işlemleri yapar',
-    icon: <Database className="w-5 h-5" />,
+    label: 'Database Query',
+    description: 'Executes SQL queries on databases',
+    icon: <Database className="w-4 h-4" />,
     category: 'connectors',
-    gradient: 'from-teal-500 to-cyan-600'
+    gradient: 'from-green-400 to-teal-600'
   },
   {
     id: 'email-send',
     type: 'email-send',
-    label: 'E-posta Gönder',
-    description: 'E-posta gönderir ve alır',
-    icon: <Mail className="w-5 h-5" />,
+    label: 'Send Email',
+    description: 'Sends emails via SMTP',
+    icon: <Mail className="w-4 h-4" />,
     category: 'connectors',
-    gradient: 'from-indigo-500 to-blue-600'
+    gradient: 'from-red-400 to-pink-600'
   },
   {
     id: 'notification',
     type: 'notification',
-    label: 'Bildirim',
-    description: 'Çoklu kanal bildirim gönderir',
-    icon: <Bell className="w-5 h-5" />,
+    label: 'Notification',
+    description: 'Sends notifications via Slack, Discord, SMS',
+    icon: <Bell className="w-4 h-4" />,
     category: 'connectors',
-    gradient: 'from-purple-500 to-indigo-600',
+    gradient: 'from-green-400 to-blue-600',
     isNew: true
   },
 
-  // Utility - Yeni kategori
+  // Utility - New category
   {
-    id: 'delay',
+    id: 'delay-timer',
     type: 'delay',
-    label: 'Bekleme',
-    description: 'Akışı belirli süre bekletir',
-    icon: <Clock className="w-5 h-5" />,
+    label: 'Delay',
+    description: 'Pauses workflow execution for a specified time',
+    icon: <Clock className="w-4 h-4" />,
     category: 'utility',
-    gradient: 'from-emerald-500 to-teal-600',
-    isNew: true
+    gradient: 'from-gray-400 to-gray-600'
   },
   {
-    id: 'transform',
+    id: 'transform-data',
     type: 'transform',
-    label: 'Veri Dönüşümü',
-    description: 'Veriyi dönüştürür ve haritalandırır',
-    icon: <Shuffle className="w-5 h-5" />,
+    label: 'Transform Data',
+    description: 'Transforms and maps data using JavaScript',
+    icon: <Shuffle className="w-4 h-4" />,
     category: 'utility',
-    gradient: 'from-cyan-500 to-blue-600',
-    isNew: true
+    gradient: 'from-cyan-400 to-blue-600'
   },
   {
     id: 'error-handler',
     type: 'error-handler',
-    label: 'Hata Yöneticisi',
-    description: 'Hata durumlarını yönetir ve alternatif akış sağlar',
-    icon: <AlertTriangle className="w-5 h-5" />,
+    label: 'Error Handler',
+    description: 'Manages error conditions and provides alternative flow',
+    icon: <AlertTriangle className="w-4 h-4" />,
     category: 'utility',
-    gradient: 'from-red-500 to-orange-600',
-    isNew: true
+    gradient: 'from-red-400 to-red-600'
   },
   {
     id: 'custom-function',
     type: 'custom-function',
-    label: 'Özel Fonksiyon',
-    description: 'Kullanıcı tanımlı JavaScript kodu çalıştırır',
-    icon: <Code className="w-5 h-5" />,
+    label: 'Custom Function',
+    description: 'Executes user-defined JavaScript code',
+    icon: <Code className="w-4 h-4" />,
     category: 'utility',
-    gradient: 'from-violet-500 to-purple-600',
-    isNew: true
+    gradient: 'from-indigo-400 to-purple-600'
   }
 ];
 
 const categories = [
-  { id: 'triggers', label: 'Tetikleyiciler', icon: <Play className="w-4 h-4" />, description: 'Workflow başlatan node\'lar' },
-  { id: 'agents', label: 'Agent\'lar', icon: <Bot className="w-4 h-4" />, description: 'AI/ML görevleri' },
-  { id: 'logic', label: 'Mantık', icon: <GitBranch className="w-4 h-4" />, description: 'Karar verme ve kontrol' },
-  { id: 'connectors', label: 'Bağlayıcılar', icon: <Settings className="w-4 h-4" />, description: 'Harici sistemler' },
-  { id: 'utility', label: 'Yardımcı', icon: <Layers className="w-4 h-4" />, description: 'Genel amaçlı işlemler' },
-  { id: 'custom', label: 'Özel', icon: <Plus className="w-4 h-4" />, description: 'Kullanıcı tanımlı' }
+  { id: 'triggers', label: 'Triggers', icon: <Play className="w-4 h-4" />, description: 'Nodes that start workflows' },
+  { id: 'agents', label: 'Agents', icon: <Bot className="w-4 h-4" />, description: 'AI/ML tasks' },
+  { id: 'connectors', label: 'Connectors', icon: <Globe className="w-4 h-4" />, description: 'External integrations' },
+  { id: 'logic', label: 'Logic', icon: <GitBranch className="w-4 h-4" />, description: 'Flow control' },
+  { id: 'utility', label: 'Utility', icon: <Settings className="w-4 h-4" />, description: 'Helper functions' },
+  { id: 'custom', label: 'Custom', icon: <Plus className="w-4 h-4" />, description: 'User-defined' }
 ];
 
 export function NodePalette() {
@@ -236,23 +233,33 @@ export function NodePalette() {
   };
 
   const handleWorldIDError = (error: IErrorState) => {
-    console.error('WorldID verification hatası:', error);
-    setError(getWorldIDErrorMessage(error.message || 'Bilinmeyen hata'));
+    console.error('WorldID verification error:', error);
+    console.error('Error details:', JSON.stringify(error, null, 2));
+    
+    // More detailed error handling
+    let errorMessage = 'Unknown error';
+    if (error.message) {
+      errorMessage = getWorldIDErrorMessage(error.message);
+    } else if (error.code) {
+      errorMessage = getWorldIDErrorMessage(error.code);
+    }
+    
+    setError(errorMessage);
   };
 
   return (
     <div className="p-6 space-y-6">
       <div className="text-center">
-        <h2 className="text-lg font-semibold text-gray-900 mb-2">Node Kütüphanesi</h2>
-        <p className="text-sm text-gray-600">Sürükleyip canvas'a bırakın</p>
+        <h2 className="text-lg font-semibold text-gray-900 mb-2">Node Library</h2>
+        <p className="text-sm text-gray-600">Drag and drop to canvas</p>
       </div>
 
-      {/* Arama */}
+      {/* Search */}
       <div className="relative">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
         <input
           type="text"
-          placeholder="Eklemek istediğiniz node'u arayın..."
+          placeholder="Search for nodes to add..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full pl-10 pr-4 py-3 bg-white border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm shadow-sm"
@@ -267,9 +274,9 @@ export function NodePalette() {
         )}
       </div>
 
-      {/* Kategori Filtreleri */}
+      {/* Category Filters */}
       <div className="space-y-2">
-        <h3 className="text-sm font-medium text-gray-700">Kategoriler</h3>
+        <h3 className="text-sm font-medium text-gray-700">Categories</h3>
         <div className="flex flex-wrap gap-2">
           <button
             onClick={() => setActiveCategory('all')}
@@ -279,7 +286,7 @@ export function NodePalette() {
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
-            Tümü
+            All
           </button>
           {categories.map((category) => (
             <button
@@ -298,20 +305,20 @@ export function NodePalette() {
         </div>
       </div>
 
-      {/* Arama Sonuç Bilgisi */}
+      {/* Search Result Info */}
       {searchQuery && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
           <p className="text-sm text-blue-800">
-            <span className="font-medium">"{searchQuery}"</span> için {filteredNodes.length} node bulundu.
-            {filteredNodes.length > 0 ? ' Workflow\'unuza eklemek için sürükleyip bırakın.' : ' Farklı anahtar kelimeler deneyin.'}
+            <span className="font-medium">"{searchQuery}"</span> found {filteredNodes.length} nodes.
+            {filteredNodes.length > 0 ? ' Drag and drop to add to your workflow.' : ' Try different keywords.'}
           </p>
         </div>
       )}
 
-      {/* Node Listesi */}
+      {/* Node List */}
       <div className="space-y-4">
         {activeCategory === 'all' ? (
-          // Tüm kategoriler için gruplu gösterim
+          // Grouped display for all categories
           categories.map((category) => {
             const categoryNodes = filteredNodes.filter(node => node.category === category.id);
             if (categoryNodes.length === 0) return null;
@@ -333,7 +340,7 @@ export function NodePalette() {
             );
           })
         ) : (
-          // Tek kategori için düz liste
+          // Flat list for single category
           <div className="space-y-2">
             {filteredNodes.map((node) => (
               <NodeCard key={node.id} node={node} onDragStart={onDragStart} />
@@ -342,7 +349,7 @@ export function NodePalette() {
         )}
       </div>
 
-      {/* Özel Node Oluştur */}
+      {/* Create Custom Node */}
       <div className="mt-8 pt-6 border-t border-gray-200">
         <button 
           onClick={() => setShowCreateModal(true)}
@@ -353,25 +360,25 @@ export function NodePalette() {
               <Plus className="w-5 h-5" />
             </div>
             <div className="text-left">
-              <h3 className="font-medium text-purple-900">Özel Node Oluştur</h3>
-              <p className="text-sm text-purple-600">Kendi node'unuzu tasarlayın</p>
+              <h3 className="font-medium text-purple-900">Create Custom Node</h3>
+              <p className="text-sm text-purple-600">Design your own node</p>
             </div>
           </div>
         </button>
       </div>
 
-      {/* Hazır Şablonlar */}
+      {/* Ready Templates */}
       <div className="space-y-3">
         <h3 className="text-sm font-medium text-gray-700 flex items-center space-x-2">
           <Layers className="w-4 h-4" />
-          <span>Hazır Şablonlar</span>
+          <span>Ready Templates</span>
         </h3>
         <div className="space-y-2">
           {[
             { name: 'API → Database', desc: 'HTTP → Transform → Database', nodes: 3 },
-            { name: 'Duygu Analizi', desc: 'Webhook → Agent → Notification', nodes: 3 },
-            { name: 'Veri Pipeline', desc: 'Timer → Loop → Transform → Email', nodes: 4 },
-            { name: 'Hata Yönetimi', desc: 'HTTP → Error Handler → Retry', nodes: 3 }
+            { name: 'Sentiment Analysis', desc: 'Webhook → Agent → Notification', nodes: 3 },
+            { name: 'Data Pipeline', desc: 'Timer → Loop → Transform → Email', nodes: 4 },
+            { name: 'Error Management', desc: 'HTTP → Error Handler → Retry', nodes: 3 }
           ].map((template, index) => (
             <div
               key={index}
@@ -383,7 +390,7 @@ export function NodePalette() {
                   <div className="text-xs text-blue-600 mt-1">{template.desc}</div>
                 </div>
                 <div className="text-xs text-blue-500 bg-blue-100 px-2 py-1 rounded">
-                  {template.nodes} node
+                  {template.nodes} nodes
                 </div>
               </div>
             </div>
@@ -396,7 +403,7 @@ export function NodePalette() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-2xl font-bold text-gray-900">Özel Node Oluştur</h3>
+              <h3 className="text-2xl font-bold text-gray-900">Create Custom Node</h3>
               <button
                 onClick={() => setShowCreateModal(false)}
                 className="text-gray-400 hover:text-gray-600 text-xl"
@@ -412,10 +419,10 @@ export function NodePalette() {
                     <Bot className="w-8 h-8 text-white" />
                   </div>
                   <h4 className="text-lg font-semibold text-gray-900 mb-2">
-                    Kimlik Doğrulama Gerekli
+                    Identity Verification Required
                   </h4>
                   <p className="text-gray-600 mb-6">
-                    Özel node oluşturmak için WorldID ile kimlik doğrulaması yapmanız gerekiyor.
+                    You need to verify your identity with WorldID to create custom nodes.
                   </p>
                 </div>
                 
@@ -432,6 +439,7 @@ export function NodePalette() {
                 <IDKitWidget
                   app_id={WORLDID_APP_ID}
                   action={WORLDID_ACTION_CREATE_NODE}
+                  signal="create-node"
                   verification_level={VerificationLevel.Device}
                   handleVerify={handleWorldIDSuccess}
                   onSuccess={() => console.log('WorldID verification completed')}
@@ -442,14 +450,14 @@ export function NodePalette() {
                       onClick={open}
                       className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 text-white py-3 px-6 rounded-xl font-semibold hover:shadow-lg transition-all duration-200"
                     >
-                      WorldID ile Doğrula
+                      Verify with WorldID
                     </button>
                   )}
                 </IDKitWidget>
 
                 <div className="text-center">
                   <p className="text-xs text-gray-500">
-                    WorldID uygulaması ile QR kodu tarayın
+                    Scan the QR code with the WorldID app
                   </p>
                 </div>
               </div>
@@ -459,48 +467,48 @@ export function NodePalette() {
                   <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
                     <span className="text-green-600 text-xl">✓</span>
                   </div>
-                  <p className="text-sm text-green-600 font-medium">Kimlik doğrulama başarılı!</p>
+                  <p className="text-sm text-green-600 font-medium">Identity verification successful!</p>
                 </div>
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Node Adı
+                    Node Name
                   </label>
                   <input
                     type="text"
                     value={newNodeData.name}
                     onChange={(e) => setNewNodeData({...newNodeData, name: e.target.value})}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    placeholder="Örn: Web Scraper Node"
+                    placeholder="e.g. Web Scraper Node"
                   />
                 </div>
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Açıklama
+                    Description
                   </label>
                   <textarea
                     value={newNodeData.description}
                     onChange={(e) => setNewNodeData({...newNodeData, description: e.target.value})}
                     rows={3}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    placeholder="Node'un ne yaptığını açıklayın..."
+                    placeholder="Describe what the node does..."
                   />
                 </div>
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Kategori
+                    Category
                   </label>
                   <select
                     value={newNodeData.category}
                     onChange={(e) => setNewNodeData({...newNodeData, category: e.target.value})}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                   >
-                    <option value="custom">Özel</option>
-                    <option value="connectors">Bağlayıcılar</option>
-                    <option value="logic">Mantık</option>
-                    <option value="utility">Yardımcı</option>
+                    <option value="custom">Custom</option>
+                    <option value="connectors">Connectors</option>
+                    <option value="logic">Logic</option>
+                    <option value="utility">Utility</option>
                   </select>
                 </div>
                 
@@ -514,7 +522,7 @@ export function NodePalette() {
                     }}
                     className="px-6 py-3 text-sm font-semibold text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-all duration-200"
                   >
-                    İptal
+                    Cancel
                   </button>
                   <button
                     onClick={() => {
@@ -525,14 +533,14 @@ export function NodePalette() {
                         setIsWorldIDVerified(false);
                         setError('');
                         setNewNodeData({name: '', description: '', category: 'custom', parameters: []});
-                        alert('Özel node başarıyla oluşturuldu!');
+                        alert('Custom node created successfully!');
                       } else {
-                        alert('Lütfen tüm alanları doldurun.');
+                        alert('Please fill in all fields.');
                       }
                     }}
                     className="px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl hover:shadow-lg transition-all duration-200"
                   >
-                    Node Oluştur
+                    Create Node
                   </button>
                 </div>
               </div>
@@ -563,12 +571,12 @@ function NodeCard({ node, onDragStart }: { node: NodeType; onDragStart: (event: 
             </h3>
             {node.isNew && (
               <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
-                YENİ
+                NEW
               </span>
             )}
             {node.isCustom && (
               <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">
-                ÖZEL
+                CUSTOM
               </span>
             )}
           </div>

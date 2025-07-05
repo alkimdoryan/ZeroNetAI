@@ -76,9 +76,9 @@ export function TriggerNode({ id, data, selected }: TriggerNodeProps) {
           <div className="flex-1">
             <h3 className="font-medium text-gray-900 text-sm">{data.label}</h3>
             <p className="text-xs text-gray-500 mt-1">
-              {data.triggerType === 'manual' && 'Manuel başlatma'}
-              {data.triggerType === 'timer' && `Her ${data.config?.interval || 5} dakika`}
-              {data.triggerType === 'webhook' && 'HTTP webhook'}
+              {data.triggerType === 'manual' && 'Manual trigger'}
+              {data.triggerType === 'timer' && 'Timer trigger'}
+              {data.triggerType === 'webhook' && 'Webhook trigger'}
             </p>
           </div>
         </div>
@@ -94,7 +94,7 @@ export function TriggerNode({ id, data, selected }: TriggerNodeProps) {
 
       {/* Status indicator */}
       <div className="flex items-center justify-between">
-        <span className="text-xs text-gray-400">Tetikleyici</span>
+        <span className="text-xs text-gray-400">Trigger</span>
         <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
       </div>
 
@@ -106,22 +106,22 @@ export function TriggerNode({ id, data, selected }: TriggerNodeProps) {
               onClick={() => handleMenuAction('execute')}
               className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center space-x-2 rounded-lg transition-colors"
             >
-              <Play className="w-4 h-4 flex-shrink-0" />
-              <span className="whitespace-nowrap">Çalıştır</span>
+              <span>▶</span>
+              <span className="whitespace-nowrap">Run</span>
             </button>
             <button
               onClick={() => handleMenuAction('edit')}
               className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center space-x-2 rounded-lg transition-colors"
             >
               <Edit3 className="w-4 h-4 flex-shrink-0" />
-              <span className="whitespace-nowrap">Düzenle</span>
+              <span className="whitespace-nowrap">Edit</span>
             </button>
             <button
               onClick={() => handleMenuAction('copy')}
               className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center space-x-2 rounded-lg transition-colors"
             >
               <Copy className="w-4 h-4 flex-shrink-0" />
-              <span className="whitespace-nowrap">Kopyala</span>
+              <span className="whitespace-nowrap">Copy</span>
             </button>
             <div className="border-t border-gray-200 my-1" />
             <button
@@ -129,7 +129,7 @@ export function TriggerNode({ id, data, selected }: TriggerNodeProps) {
               className="w-full px-3 py-2 text-left text-sm hover:bg-red-50 text-red-600 flex items-center space-x-2 rounded-lg transition-colors"
             >
               <Trash2 className="w-4 h-4 flex-shrink-0" />
-              <span className="whitespace-nowrap">Sil</span>
+              <span className="whitespace-nowrap">Delete</span>
             </button>
           </div>
         </div>

@@ -108,7 +108,7 @@ async function testWorkflowExecution() {
   
   // Execute workflow with test data
   const execution = await orchestrator.getManager().executeWorkflow(workflow.id, {
-    text: 'Bu harika bir proje! Çok başarılı olacak.',
+    text: 'This is a great project! It will be very successful.',
     taskId: 1,
   });
   
@@ -221,7 +221,7 @@ async function testSentimentAnalysisWorkflow() {
       position: { x: 250, y: 200 },
       parameters: {
         agentId: 'bitnet-sentiment-v1',
-        taskDescription: 'Analyze sentiment of Turkish text: {{$json.tweetText}}',
+        taskDescription: 'Analyze sentiment of text: {{$json.tweetText}}',
         timeout: 30000,
         retryOnFailure: true,
       },
@@ -259,22 +259,22 @@ async function testSentimentAnalysisWorkflow() {
   
   const workflow = await orchestrator.getManager().createWorkflow({
     name: 'SAP Protocol Sentiment Analysis',
-    description: 'Hourly sentiment analysis of Turkish crypto tweets using BitNet LLM',
+    description: 'Hourly sentiment analysis of crypto tweets using BitNet LLM',
     active: true,
     nodes,
     connections,
-    tags: ['sentiment', 'turkish', 'crypto', 'demo'],
+    tags: ['sentiment', 'crypto', 'demo'],
   });
   
   console.log('✅ Created SAP Protocol Demo Workflow:', workflow.id);
   
   // Test with various Turkish texts
   const testTexts = [
-    'Bitcoin bugün harika bir performans sergiliyor! 🚀',
-    'Kripto piyasası çok volatil, dikkatli olmak gerek.',
-    'Blockchain teknolojisi geleceğin teknolojisi.',
-    'Bu düşüş çok üzücü, portföyüm eridi.',
-    'SAP Protocol çok yenilikçi bir proje!',
+    'Bitcoin is showing amazing performance today! 🚀',
+    'Crypto market is very volatile, need to be careful.',
+    'Blockchain technology is the technology of the future.',
+    'This decline is very sad, my portfolio melted.',
+    'SAP Protocol is a very innovative project!',
   ];
   
   for (let i = 0; i < testTexts.length; i++) {

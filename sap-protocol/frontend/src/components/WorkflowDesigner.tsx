@@ -17,7 +17,7 @@ import { useWorkflowStore } from '../store/workflowStore';
 // Basit bileşenler
 const NodePalette = () => (
   <div className="p-4 space-y-4">
-    <h3 className="font-semibold text-gray-900">Node Kütüphanesi</h3>
+    <h3 className="font-semibold text-gray-900">Node Library</h3>
     <div className="space-y-2">
       {['trigger', 'agent', 'condition', 'connector'].map(type => (
         <div 
@@ -26,10 +26,10 @@ const NodePalette = () => (
           onDragStart={(e) => e.dataTransfer.setData('application/reactflow', type)}
           className="p-3 bg-white border rounded-lg cursor-move hover:shadow-md"
         >
-          {type === 'trigger' && '▶ Tetikleyici'}
+          {type === 'trigger' && '▶ Trigger'}
           {type === 'agent' && '🤖 Agent'}
-          {type === 'condition' && '◊ Koşul'}
-          {type === 'connector' && '⚡ Bağlayıcı'}
+          {type === 'condition' && '◊ Condition'}
+          {type === 'connector' && '⚡ Connector'}
         </div>
       ))}
     </div>
@@ -39,13 +39,13 @@ const NodePalette = () => (
 const PropertiesPanel = ({ selectedNode, onClose }: any) => (
   <div className="p-4">
     <div className="flex justify-between items-center mb-4">
-      <h3 className="font-semibold">Özellikler</h3>
+      <h3 className="font-semibold">Properties</h3>
       <button onClick={onClose} className="text-gray-400 hover:text-gray-600">×</button>
     </div>
     {selectedNode && (
       <div className="space-y-3">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Ad</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
           <input 
             type="text" 
             value={selectedNode.data?.label || ''} 
@@ -54,7 +54,7 @@ const PropertiesPanel = ({ selectedNode, onClose }: any) => (
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Tür</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
           <input 
             type="text" 
             value={selectedNode.type || ''} 
@@ -70,10 +70,10 @@ const PropertiesPanel = ({ selectedNode, onClose }: any) => (
 const WorkflowToolbar = () => (
   <div className="flex items-center space-x-2">
     <button className="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600">
-      ▶ Çalıştır
+      ▶ Run
     </button>
     <button className="px-3 py-1 bg-gray-500 text-white rounded-md hover:bg-gray-600">
-      💾 Kaydet
+      💾 Save
     </button>
   </div>
 );
@@ -128,7 +128,7 @@ const initialNodes: Node[] = [
     type: 'trigger',
     position: { x: 100, y: 100 },
     data: { 
-      label: 'Manuel Başlatma',
+      label: 'Manual Trigger',
       triggerType: 'manual',
       config: {}
     },
@@ -181,7 +181,7 @@ export function WorkflowDesigner() {
         type,
         position,
         data: { 
-          label: `Yeni ${type}`,
+          label: `New ${type}`,
           config: {}
         },
       };

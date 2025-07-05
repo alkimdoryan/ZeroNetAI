@@ -14,10 +14,10 @@ export function Dashboard() {
   );
 
   const tabs = [
-    { id: 'tasks', label: 'Görevler', icon: '📋' },
+    { id: 'tasks', label: 'Tasks', icon: '📋' },
     { id: 'workflow', label: 'Workflow Designer', icon: '🔄' },
-    { id: 'register', label: 'Agent Kaydı', icon: '🤖' },
-    { id: 'profile', label: 'Profil', icon: '👤' },
+    { id: 'register', label: 'Agent Registration', icon: '🤖' },
+    { id: 'profile', label: 'Profile', icon: '👤' },
   ];
 
   return (
@@ -42,7 +42,7 @@ export function Dashboard() {
             <div className="flex items-center space-x-4">
               <div className="hidden md:flex items-center space-x-2 text-sm text-gray-600">
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span>Aktif</span>
+                <span>Active</span>
               </div>
               <ConnectButton />
             </div>
@@ -59,11 +59,11 @@ export function Dashboard() {
                 <div className="text-4xl text-white">🔗</div>
               </div>
               <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                Cüzdanınızı Bağlayın
+                Connect Your Wallet
               </h2>
               <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-                SAP Protocol'ü kullanmaya başlamak için cüzdanınızı bağlamanız gerekiyor.
-                Blockchain üzerinde güvenli bir şekilde işlem yapabilirsiniz.
+                Connect your wallet to start using SAP Protocol.
+                Transact securely on the blockchain.
               </p>
               <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/20">
                 <ConnectButton />
@@ -108,7 +108,7 @@ export function Dashboard() {
                   initialNodes={[]}
                   initialEdges={[]}
                   onSave={(nodes, edges) => {
-                    console.log('Workflow kaydedildi:', { nodes, edges });
+                    console.log('Workflow saved:', { nodes, edges });
                   }}
                   onLoad={() => ({ nodes: [], edges: [] })}
                 />

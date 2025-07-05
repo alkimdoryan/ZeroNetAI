@@ -19,7 +19,10 @@ export function AgentRegistration() {
   });
 
   const handleWorldIDSuccess = (result: ISuccessResult) => {
-    console.log('WorldID verification başarılı:', result);
+    console.log('✅ WorldID verification başarılı:', result);
+    console.log('✅ Proof:', result.proof);
+    console.log('✅ Merkle root:', result.merkle_root);
+    console.log('✅ Nullifier hash:', result.nullifier_hash);
     setError('');
     setIsPending(true);
 
@@ -46,15 +49,29 @@ export function AgentRegistration() {
   };
 
   const handleWorldIDError = (error: IErrorState) => {
-    console.error('WorldID verification hatası:', error);
-    setError(getWorldIDErrorMessage(error.message || 'Bilinmeyen hata'));
+    console.error('❌ WorldID verification hatası:', error);
+    console.error('❌ Error details:', JSON.stringify(error, null, 2));
+    console.error('❌ Error message:', error.message);
+    console.error('❌ Error code:', error.code);
+    console.error('❌ Address:', address);
+    console.error('❌ Form valid:', isFormValid);
+    
+    // More detailed error handling
+    let errorMessage = 'Unknown error';
+    if (error.message) {
+      errorMessage = getWorldIDErrorMessage(error.message);
+    } else if (error.code) {
+      errorMessage = getWorldIDErrorMessage(error.code);
+    }
+    
+    setError(errorMessage);
     setIsPending(false);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    // Form validation burada yapılacak
+    // Form validation will be done here
   };
 
   const isFormValid = formData.name.trim() && formData.description.trim() && formData.zkVMEndpoint.trim();
@@ -68,9 +85,9 @@ export function AgentRegistration() {
             🤖
           </div>
           <div>
-            <h2 className="text-3xl font-bold text-gray-900">Agent Kayıt Et</h2>
+            <h2 className="text-3xl font-bold text-gray-900">Register Agent</h2>
             <p className="text-lg text-gray-600">
-              Yeni bir AI agent'ı sisteme kaydetmek için gerekli bilgileri girin
+              Enter the required information to register a new AI agent to the system
             </p>
           </div>
         </div>
@@ -86,7 +103,7 @@ export function AgentRegistration() {
                   htmlFor="name"
                   className="block text-sm font-semibold text-gray-700 mb-3"
                 >
-                  Agent Adı
+                  Agent Name
                 </label>
                 <input
                   type="text"
@@ -96,7 +113,7 @@ export function AgentRegistration() {
                     setFormData({ ...formData, name: e.target.value })
                   }
                   className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-white/20 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
-                  placeholder="Örnek: Sentiment Analysis Bot"
+                  placeholder="Example: Sentiment Analysis Bot"
                   required
                 />
               </div>
@@ -106,7 +123,7 @@ export function AgentRegistration() {
                   htmlFor="description"
                   className="block text-sm font-semibold text-gray-700 mb-3"
                 >
-                  Açıklama
+                  Description
                 </label>
                 <textarea
                   id="description"
@@ -116,7 +133,7 @@ export function AgentRegistration() {
                   }
                   rows={4}
                   className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-white/20 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 resize-none"
-                  placeholder="Agent'ın ne yaptığını detaylı bir şekilde açıklayın..."
+                  placeholder="Describe what the agent does in detail..."
                   required
                 />
               </div>
@@ -154,17 +171,18 @@ export function AgentRegistration() {
               <div className="border-t border-white/20 pt-8">
                 <div className="text-center">
                   <p className="text-sm text-gray-600 mb-6">
-                    Agent'ı kaydetmek için WorldID doğrulaması gereklidir
+                    WorldID verification is required to register the agent
                   </p>
 
                   <IDKitWidget
                     app_id={WORLDID_APP_ID}
                     action={WORLDID_ACTION_REGISTER}
-                    signal={address}
+                    signal={address || 'test-signal'}
                     verification_level={VerificationLevel.Device}
                     handleVerify={handleWorldIDSuccess}
-                    onSuccess={() => console.log('WorldID verification completed')}
+                    onSuccess={() => console.log('✅ WorldID verification completed')}
                     onError={handleWorldIDError}
+                    autoClose={false}
                   >
                     {({ open }) => (
                       <button
@@ -176,12 +194,12 @@ export function AgentRegistration() {
                         {isPending ? (
                           <>
                             <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                            <span>Kaydediliyor...</span>
+                            <span>Registering...</span>
                           </>
                         ) : (
                           <>
                             <span className="text-xl">🌍</span>
-                            <span>WorldID ile Doğrula ve Kaydet</span>
+                            <span>Verify with WorldID and Register</span>
                           </>
                         )}
                       </button>
@@ -190,7 +208,7 @@ export function AgentRegistration() {
 
                   {!address && (
                     <p className="text-sm text-orange-600 mt-4">
-                      ⚠️ Önce cüzdanınızı bağlamanız gerekiyor
+                      ⚠️ Please connect your wallet first
                     </p>
                   )}
                 </div>
@@ -208,25 +226,25 @@ export function AgentRegistration() {
                 ✓
               </div>
               <h3 className="text-lg font-semibold text-gray-900">
-                Gereksinimler
+                Requirements
               </h3>
             </div>
             <ul className="space-y-3 text-sm text-gray-600">
               <li className="flex items-start space-x-3">
                 <span className="text-green-500 mt-1">•</span>
-                <span>Geçerli bir WorldID hesabı</span>
+                <span>Valid WorldID account</span>
               </li>
               <li className="flex items-start space-x-3">
                 <span className="text-green-500 mt-1">•</span>
-                <span>Çalışan zkVM endpoint'i</span>
+                <span>Working zkVM endpoint</span>
               </li>
               <li className="flex items-start space-x-3">
                 <span className="text-green-500 mt-1">•</span>
-                <span>Benzersiz agent adı</span>
+                <span>Unique agent name</span>
               </li>
               <li className="flex items-start space-x-3">
                 <span className="text-green-500 mt-1">•</span>
-                <span>Bağlı Web3 cüzdanı</span>
+                <span>Connected Web3 wallet</span>
               </li>
             </ul>
           </div>
@@ -238,21 +256,21 @@ export function AgentRegistration() {
                 🌍
               </div>
               <h3 className="text-lg font-semibold text-blue-800">
-                WorldID Doğrulama
+                WorldID Verification
               </h3>
             </div>
             <ul className="space-y-3 text-sm text-blue-700">
               <li className="flex items-start space-x-3">
                 <span className="text-blue-500 mt-1">•</span>
-                <span>Telefon uygulaması ile QR kod tarayın</span>
+                <span>Scan QR code with your phone app</span>
               </li>
               <li className="flex items-start space-x-3">
                 <span className="text-blue-500 mt-1">•</span>
-                <span>Yalnızca bir kez doğrulama gerekir</span>
+                <span>Verification is only required once</span>
               </li>
               <li className="flex items-start space-x-3">
                 <span className="text-blue-500 mt-1">•</span>
-                <span>Kimlik bilgileriniz gizli kalır</span>
+                <span>Your identity information remains private</span>
               </li>
             </ul>
           </div>
@@ -264,21 +282,21 @@ export function AgentRegistration() {
                 ⚠️
               </div>
               <h3 className="text-lg font-semibold text-yellow-800">
-                Önemli Bilgiler
+                Important Information
               </h3>
             </div>
             <ul className="space-y-3 text-sm text-yellow-700">
               <li className="flex items-start space-x-3">
                 <span className="text-yellow-500 mt-1">•</span>
-                <span>Her kişi yalnızca bir agent kaydedebilir</span>
+                <span>Each person can only register one agent</span>
               </li>
               <li className="flex items-start space-x-3">
                 <span className="text-yellow-500 mt-1">•</span>
-                <span>WorldID doğrulaması geri alınamaz</span>
+                <span>WorldID verification is irreversible</span>
               </li>
               <li className="flex items-start space-x-3">
                 <span className="text-yellow-500 mt-1">•</span>
-                <span>Agent bilgileri blokzincirde kalıcı olarak saklanır</span>
+                <span>Agent information is permanently stored on blockchain</span>
               </li>
             </ul>
           </div>
@@ -290,14 +308,14 @@ export function AgentRegistration() {
                 💬
               </div>
               <h3 className="text-lg font-semibold text-gray-900">
-                Yardıma mı ihtiyacınız var?
+                Need Help?
               </h3>
             </div>
             <p className="text-sm text-gray-600 mb-4">
-              Agent kaydetme konusunda sorularınız varsa bize ulaşın.
+              If you have questions about agent registration, please contact us.
             </p>
             <button className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-4 rounded-lg transition-colors text-sm">
-              Destek Ekibi ile İletişime Geç
+              Contact Support Team
             </button>
           </div>
         </div>

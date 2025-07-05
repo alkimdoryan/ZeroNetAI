@@ -12,6 +12,10 @@ interface AgentNodeProps {
     onDelete?: (id: string) => void;
     onCopy?: (id: string) => void;
     onExecute?: (id: string) => void;
+    status?: 'success' | 'error' | 'running';
+    executionTime?: number;
+    description?: string;
+    lastExecution?: Date;
   };
   selected?: boolean;
 }
@@ -102,48 +106,123 @@ export function AgentNode({ id, data, selected }: AgentNodeProps) {
         </button>
       </div>
 
-      {/* Status indicator */}
-      <div className="flex items-center justify-between">
-        <span className="text-xs text-gray-400">Agent</span>
-        <div className="w-2 h-2 bg-orange-400 rounded-full animate-pulse"></div>
+      {/* Quick actions */}
+      <div className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity flex space-x-1">
+        <button 
+          onClick={() => console.log('Execute agent node')}
+          className="w-6 h-6 bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center justify-center text-xs transition-all"
+          title="Execute"
+        >
+          ▶
+        </button>
+        <button 
+          onClick={() => console.log('Edit agent node')}
+          className="w-6 h-6 bg-blue-500 hover:bg-blue-600 text-white rounded-full flex items-center justify-center text-xs transition-all"
+          title="Edit"
+        >
+          ✏
+        </button>
+        <button 
+          onClick={() => console.log('Copy agent node')}
+          className="w-6 h-6 bg-gray-500 hover:bg-gray-600 text-white rounded-full flex items-center justify-center text-xs transition-all"
+          title="Copy"
+        >
+          📋
+        </button>
+        <button 
+          onClick={() => console.log('Delete agent node')}
+          className="w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-xs transition-all"
+          title="Delete"
+        >
+          🗑
+        </button>
       </div>
 
-      {/* Context Menu */}
-      {showMenu && (
-        <div className="absolute top-12 right-0 bg-white rounded-xl shadow-2xl border border-gray-200 py-2 min-w-max max-w-xs z-[70] transform origin-top-right">
-          <div className="px-1">
-            <button
-              onClick={() => handleMenuAction('execute')}
-              className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center space-x-2 rounded-lg transition-colors"
-            >
-              <Play className="w-4 h-4 flex-shrink-0" />
-              <span className="whitespace-nowrap">Çalıştır</span>
-            </button>
-            <button
-              onClick={() => handleMenuAction('edit')}
-              className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center space-x-2 rounded-lg transition-colors"
-            >
-              <Edit3 className="w-4 h-4 flex-shrink-0" />
-              <span className="whitespace-nowrap">Düzenle</span>
-            </button>
-            <button
-              onClick={() => handleMenuAction('copy')}
-              className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center space-x-2 rounded-lg transition-colors"
-            >
-              <Copy className="w-4 h-4 flex-shrink-0" />
-              <span className="whitespace-nowrap">Kopyala</span>
-            </button>
-            <div className="border-t border-gray-200 my-1" />
-            <button
-              onClick={() => handleMenuAction('delete')}
-              className="w-full px-3 py-2 text-left text-sm hover:bg-red-50 text-red-600 flex items-center space-x-2 rounded-lg transition-colors"
-            >
-              <Trash2 className="w-4 h-4 flex-shrink-0" />
-              <span className="whitespace-nowrap">Sil</span>
-            </button>
+      {/* Status indicator */}
+      {data.status && (
+        <div className={`absolute -top-1 -left-1 w-3 h-3 rounded-full border-2 border-white ${
+          data.status === 'success' ? 'bg-green-500' : 
+          data.status === 'error' ? 'bg-red-500' : 
+          data.status === 'running' ? 'bg-yellow-500 animate-pulse' : 'bg-gray-400'
+        }`} />
+      )}
+
+      {/* Agent info section */}
+      <div className="mb-4">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center space-x-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg flex items-center justify-center text-white shadow-md">
+              🤖
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold text-gray-900">{data.label}</h3>
+              <p className="text-xs text-gray-500">{data.description || 'BitNet LLM Agent'}</p>
+            </div>
+          </div>
+          
+          {data.lastExecution && (
+            <div className="text-right">
+              <div className="text-xs text-gray-400">Last run</div>
+              <div className="text-xs font-medium text-gray-600">
+                {data.executionTime ? `${data.executionTime}ms` : 'N/A'}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Agent configuration preview */}
+        <div className="bg-orange-50/70 rounded-lg p-3 space-y-2">
+          <div className="flex justify-between items-center">
+            <span className="text-xs font-medium text-orange-800">Model:</span>
+            <span className="text-xs text-orange-700">{data.config?.model || 'BitNet-LLM-1.5B'}</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-xs font-medium text-orange-800">Temperature:</span>
+            <span className="text-xs text-orange-700">{data.config?.temperature || '0.7'}</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-xs font-medium text-orange-800">Max Tokens:</span>
+            <span className="text-xs text-orange-700">{data.config?.maxTokens || '1000'}</span>
           </div>
         </div>
-      )}
+      </div>
+
+      {/* Node controls */}
+      <div className="flex justify-between items-center pt-2 border-t border-orange-200/50">
+        <div className="flex space-x-1">
+          <button 
+            onClick={() => console.log('Run agent')}
+            className="px-3 py-1 bg-green-500 hover:bg-green-600 text-white text-xs rounded-md transition-all flex items-center space-x-1"
+          >
+            <span>▶</span>
+            <span className="whitespace-nowrap">Run</span>
+          </button>
+          <button 
+            onClick={() => console.log('Edit agent')}
+            className="px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white text-xs rounded-md transition-all flex items-center space-x-1"
+          >
+            <span>✏</span>
+            <span className="whitespace-nowrap">Edit</span>
+          </button>
+        </div>
+        
+        <div className="flex space-x-1">
+          <button 
+            onClick={() => console.log('Copy agent')}
+            className="px-3 py-1 bg-gray-500 hover:bg-gray-600 text-white text-xs rounded-md transition-all flex items-center space-x-1"
+          >
+            <span>📋</span>
+            <span className="whitespace-nowrap">Copy</span>
+          </button>
+          <button 
+            onClick={() => console.log('Delete agent')}
+            className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white text-xs rounded-md transition-all flex items-center space-x-1"
+          >
+            <span>🗑</span>
+            <span className="whitespace-nowrap">Delete</span>
+          </button>
+        </div>
+      </div>
 
       {/* Handles */}
       <Handle

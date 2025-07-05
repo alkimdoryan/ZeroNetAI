@@ -195,14 +195,14 @@ export function BaseNode({
         {/* Execution Info */}
         {data.lastExecution && (
           <div className="flex items-center justify-between text-xs text-gray-500">
-            <span>Son çalıştırma</span>
+            <span>Last execution</span>
             <span>{data.lastExecution.toLocaleTimeString()}</span>
           </div>
         )}
 
         {data.executionTime && (
           <div className="flex items-center justify-between text-xs text-gray-500">
-            <span>Süre</span>
+            <span>Duration</span>
             <span>{data.executionTime}ms</span>
           </div>
         )}
@@ -227,21 +227,21 @@ export function BaseNode({
               className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center space-x-2 rounded-lg transition-colors"
             >
               <Play className="w-4 h-4 flex-shrink-0" />
-              <span className="whitespace-nowrap">Çalıştır</span>
+              <span className="whitespace-nowrap">Run</span>
             </button>
             <button
               onClick={() => handleMenuAction('edit')}
               className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center space-x-2 rounded-lg transition-colors"
             >
               <Edit3 className="w-4 h-4 flex-shrink-0" />
-              <span className="whitespace-nowrap">Düzenle</span>
+              <span className="whitespace-nowrap">Edit</span>
             </button>
             <button
               onClick={() => handleMenuAction('copy')}
               className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center space-x-2 rounded-lg transition-colors"
             >
               <Copy className="w-4 h-4 flex-shrink-0" />
-              <span className="whitespace-nowrap">Kopyala</span>
+              <span className="whitespace-nowrap">Copy</span>
             </button>
             <div className="border-t border-gray-200 my-1" />
             <button
@@ -249,7 +249,7 @@ export function BaseNode({
               className="w-full px-3 py-2 text-left text-sm hover:bg-red-50 text-red-600 flex items-center space-x-2 rounded-lg transition-colors"
             >
               <Trash2 className="w-4 h-4 flex-shrink-0" />
-              <span className="whitespace-nowrap">Sil</span>
+              <span className="whitespace-nowrap">Delete</span>
             </button>
           </div>
         </div>
@@ -298,7 +298,7 @@ export function BaseNode({
       {selected && (
         <div className="absolute -top-8 left-0 right-0 text-center">
           <div className="inline-block bg-gray-900 text-white text-xs px-2 py-1 rounded">
-            E: Düzenle | D: Sil | C: Kopyala
+            E: Edit | D: Delete | C: Copy
           </div>
         </div>
       )}

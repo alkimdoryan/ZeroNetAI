@@ -37,15 +37,15 @@ export function PropertiesPanel({ selectedNode, onClose, onUpdateNode }: Propert
     <div className="space-y-4">
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          Tetikleyici Türü
+          Trigger Type
         </label>
         <select
           value={formData.triggerType || 'manual'}
           onChange={(e) => setFormData({ ...formData, triggerType: e.target.value })}
           className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         >
-          <option value="manual">Manuel</option>
-          <option value="timer">Zamanlayıcı</option>
+          <option value="manual">Manual</option>
+          <option value="timer">Timer</option>
           <option value="webhook">Webhook</option>
         </select>
       </div>
@@ -53,7 +53,7 @@ export function PropertiesPanel({ selectedNode, onClose, onUpdateNode }: Propert
       {formData.triggerType === 'timer' && (
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Çalışma Aralığı (dakika)
+            Interval (minutes)
           </label>
           <input
             type="number"
@@ -86,35 +86,35 @@ export function PropertiesPanel({ selectedNode, onClose, onUpdateNode }: Propert
     <div className="space-y-4">
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          Agent Türü
+          Agent Type
         </label>
         <select
           value={formData.agentType || 'general'}
           onChange={(e) => setFormData({ ...formData, agentType: e.target.value })}
           className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         >
-          <option value="general">Genel Görev</option>
-          <option value="sentiment">Duygu Analizi</option>
-          <option value="classification">Sınıflandırma</option>
-          <option value="translation">Çeviri</option>
+          <option value="general">General Task</option>
+          <option value="sentiment">Sentiment Analysis</option>
+          <option value="classification">Classification</option>
+          <option value="translation">Translation</option>
         </select>
       </div>
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          Sistem Mesajı
+          System Message
         </label>
         <textarea
           value={formData.systemMessage || ''}
           onChange={(e) => setFormData({ ...formData, systemMessage: e.target.value })}
           className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 h-24"
-          placeholder="Agent'ın davranışını belirleyen sistem mesajı..."
+          placeholder="System message to define agent behavior..."
         />
       </div>
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          Güven Eşiği
+          Confidence Threshold
         </label>
         <input
           type="range"
@@ -136,40 +136,40 @@ export function PropertiesPanel({ selectedNode, onClose, onUpdateNode }: Propert
     <div className="space-y-4">
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          Koşul Türü
+          Condition Type
         </label>
         <select
           value={formData.conditionType || 'value'}
           onChange={(e) => setFormData({ ...formData, conditionType: e.target.value })}
           className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         >
-          <option value="value">Değer Karşılaştırma</option>
-          <option value="text">Metin İçerik</option>
-          <option value="number">Sayısal Karşılaştırma</option>
-          <option value="exists">Varlık Kontrolü</option>
+          <option value="value">Value Comparison</option>
+          <option value="text">Text Content</option>
+          <option value="number">Numerical Comparison</option>
+          <option value="exists">Existence Check</option>
         </select>
       </div>
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          Koşul
+          Condition
         </label>
         <input
           type="text"
           value={formData.condition || ''}
           onChange={(e) => setFormData({ ...formData, condition: e.target.value })}
           className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          placeholder="Örn: confidence > 0.8"
+          placeholder="For example: confidence > 0.8"
         />
       </div>
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          True Dalı Etiketi
+          True Branch Label
         </label>
         <input
           type="text"
-          value={formData.trueLabel || 'Doğru'}
+          value={formData.trueLabel || 'True'}
           onChange={(e) => setFormData({ ...formData, trueLabel: e.target.value })}
           className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         />
@@ -177,11 +177,11 @@ export function PropertiesPanel({ selectedNode, onClose, onUpdateNode }: Propert
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          False Dalı Etiketi
+          False Branch Label
         </label>
         <input
           type="text"
-          value={formData.falseLabel || 'Yanlış'}
+          value={formData.falseLabel || 'False'}
           onChange={(e) => setFormData({ ...formData, falseLabel: e.target.value })}
           className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         />
@@ -193,16 +193,16 @@ export function PropertiesPanel({ selectedNode, onClose, onUpdateNode }: Propert
     <div className="space-y-4">
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          Bağlayıcı Türü
+          Connector Type
         </label>
         <select
           value={formData.connectorType || 'api'}
           onChange={(e) => setFormData({ ...formData, connectorType: e.target.value })}
           className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         >
-          <option value="api">API İsteği</option>
-          <option value="database">Veritabanı</option>
-          <option value="email">E-posta</option>
+          <option value="api">API Request</option>
+          <option value="database">Database</option>
+          <option value="email">Email</option>
           <option value="slack">Slack</option>
         </select>
       </div>
@@ -224,7 +224,7 @@ export function PropertiesPanel({ selectedNode, onClose, onUpdateNode }: Propert
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              HTTP Metodu
+              HTTP Method
             </label>
             <select
               value={formData.method || 'GET'}
@@ -265,7 +265,7 @@ export function PropertiesPanel({ selectedNode, onClose, onUpdateNode }: Propert
       case 'connector':
         return renderConnectorSettings();
       default:
-        return <div className="text-gray-500">Bu node türü için ayar bulunmuyor.</div>;
+        return <div className="text-gray-500">No settings available for this node type.</div>;
     }
   };
 
@@ -279,7 +279,7 @@ export function PropertiesPanel({ selectedNode, onClose, onUpdateNode }: Propert
               {renderNodeIcon(selectedNode.type!)}
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">Node Ayarları</h3>
+              <h3 className="text-lg font-semibold text-gray-900">Node Settings</h3>
               <p className="text-sm text-gray-500">{selectedNode.type} - {selectedNode.id}</p>
             </div>
           </div>
@@ -296,30 +296,30 @@ export function PropertiesPanel({ selectedNode, onClose, onUpdateNode }: Propert
       <div className="flex-1 overflow-y-auto p-4 space-y-6">
         {/* Basic Settings */}
         <div>
-          <h4 className="text-sm font-medium text-gray-700 mb-3">Temel Ayarlar</h4>
+          <h4 className="text-sm font-medium text-gray-700 mb-3">Basic Settings</h4>
           <div className="space-y-3">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Node Adı
+                Node Name
               </label>
               <input
                 type="text"
                 value={formData.label || ''}
                 onChange={(e) => setFormData({ ...formData, label: e.target.value })}
                 className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Node adı..."
+                placeholder="Node name..."
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Açıklama
+                Description
               </label>
               <textarea
                 value={formData.description || ''}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 h-16"
-                placeholder="Node açıklaması..."
+                placeholder="Node description..."
               />
             </div>
           </div>
@@ -327,13 +327,13 @@ export function PropertiesPanel({ selectedNode, onClose, onUpdateNode }: Propert
 
         {/* Node-specific Settings */}
         <div>
-          <h4 className="text-sm font-medium text-gray-700 mb-3">Özel Ayarlar</h4>
+          <h4 className="text-sm font-medium text-gray-700 mb-3">Specific Settings</h4>
           {renderNodeSettings()}
         </div>
 
         {/* Advanced Settings */}
         <div>
-          <h4 className="text-sm font-medium text-gray-700 mb-3">Gelişmiş Ayarlar</h4>
+          <h4 className="text-sm font-medium text-gray-700 mb-3">Advanced Settings</h4>
           <div className="space-y-3">
             <div className="flex items-center space-x-2">
               <input
@@ -344,14 +344,14 @@ export function PropertiesPanel({ selectedNode, onClose, onUpdateNode }: Propert
                 className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
               <label htmlFor="retryOnError" className="text-sm text-gray-700">
-                Hata durumunda yeniden dene
+                Retry on error
               </label>
             </div>
 
             {formData.retryOnError && (
               <div className="ml-6">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Yeniden deneme sayısı
+                  Retry count
                 </label>
                 <input
                   type="number"
@@ -366,7 +366,7 @@ export function PropertiesPanel({ selectedNode, onClose, onUpdateNode }: Propert
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Timeout (saniye)
+                Timeout (seconds)
               </label>
               <input
                 type="number"
@@ -387,14 +387,14 @@ export function PropertiesPanel({ selectedNode, onClose, onUpdateNode }: Propert
             onClick={onClose}
             className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
           >
-            İptal
+            Cancel
           </button>
           <button
             onClick={handleSave}
             className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2"
           >
             <Save className="w-4 h-4" />
-            <span>Kaydet</span>
+            <span>Save</span>
           </button>
         </div>
       </div>

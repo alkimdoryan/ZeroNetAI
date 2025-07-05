@@ -31,25 +31,24 @@ export function WorkflowToolbar() {
   };
 
   const handleNewWorkflow = () => {
-    const name = prompt('Workflow adı:');
+    const name = prompt('Workflow name:');
     if (name) {
-      createWorkflow(name, 'Yeni workflow');
+      createWorkflow(name, 'New workflow');
     }
   };
 
-  const handleSave = () => {
-    // Implement save logic
-    console.log('Workflow kaydedildi');
+  const handleSaveWorkflow = () => {
+    console.log('Workflow saved');
   };
 
-  const handleExport = () => {
+  const handleExportWorkflow = () => {
     if (activeWorkflow) {
       const workflow = workflows.find(w => w.id === activeWorkflow);
       if (workflow) {
         const dataStr = JSON.stringify(workflow, null, 2);
         const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
         
-        const exportFileDefaultName = `workflow-${workflow.name}.json`;
+        const exportFileDefaultName = `workflow-${workflow.name.toLowerCase().replace(/\s+/g, '-')}.json`;
         
         const linkElement = document.createElement('a');
         linkElement.setAttribute('href', dataUri);
@@ -59,7 +58,7 @@ export function WorkflowToolbar() {
     }
   };
 
-  const handleImport = () => {
+  const handleImportWorkflow = () => {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = '.json';
@@ -70,10 +69,10 @@ export function WorkflowToolbar() {
         reader.onload = (e) => {
           try {
             const workflow = JSON.parse(e.target?.result as string);
-            // Implement import logic
-            console.log('Workflow yüklendi:', workflow);
+            console.log('Imported workflow:', workflow);
+            // Here we would add the workflow to the store
           } catch (error) {
-            alert('Geçersiz workflow dosyası');
+            console.error('Error importing workflow:', error);
           }
         };
         reader.readAsText(file);
@@ -94,7 +93,7 @@ export function WorkflowToolbar() {
               ? 'text-gray-400 cursor-not-allowed'
               : 'text-green-600 hover:bg-green-50'
           }`}
-          title="Workflow'u çalıştır"
+          title="Run workflow"
         >
           <Play className="w-5 h-5" />
         </button>
@@ -102,7 +101,7 @@ export function WorkflowToolbar() {
         <button
           onClick={clearLogs}
           className="p-2 rounded-lg text-red-600 hover:bg-red-50 transition-colors"
-          title="Durdur"
+          title="Stop"
         >
           <Square className="w-5 h-5" />
         </button>
@@ -113,36 +112,36 @@ export function WorkflowToolbar() {
         <button
           onClick={handleNewWorkflow}
           className="p-2 rounded-lg text-blue-600 hover:bg-blue-50 transition-colors"
-          title="Yeni workflow"
+          title="New workflow"
         >
           <Plus className="w-5 h-5" />
         </button>
         
         <button
-          onClick={handleSave}
+          onClick={handleSaveWorkflow}
           className="p-2 rounded-lg text-blue-600 hover:bg-blue-50 transition-colors"
-          title="Kaydet"
+          title="Save"
         >
           <Save className="w-5 h-5" />
         </button>
         
         <button
-          onClick={handleExport}
+          onClick={handleExportWorkflow}
           disabled={!activeWorkflow}
           className={`p-2 rounded-lg transition-colors ${
             !activeWorkflow
               ? 'text-gray-400 cursor-not-allowed'
               : 'text-blue-600 hover:bg-blue-50'
           }`}
-          title="Dışa aktar"
+          title="Export"
         >
           <Download className="w-5 h-5" />
         </button>
         
         <button
-          onClick={handleImport}
+          onClick={handleImportWorkflow}
           className="p-2 rounded-lg text-blue-600 hover:bg-blue-50 transition-colors"
-          title="İçe aktar"
+          title="Import"
         >
           <Upload className="w-5 h-5" />
         </button>
@@ -152,14 +151,14 @@ export function WorkflowToolbar() {
       <div className="flex items-center space-x-1 bg-white/80 backdrop-blur-sm rounded-xl p-1 shadow-md">
         <button
           className="p-2 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors"
-          title="Geri al"
+          title="Undo"
         >
           <Undo className="w-5 h-5" />
         </button>
         
         <button
           className="p-2 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors"
-          title="Yinele"
+          title="Redo"
         >
           <Redo className="w-5 h-5" />
         </button>
@@ -169,14 +168,14 @@ export function WorkflowToolbar() {
       <div className="flex items-center space-x-1 bg-white/80 backdrop-blur-sm rounded-xl p-1 shadow-md">
         <button
           className="p-2 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors"
-          title="Logları göster"
+          title="Show logs"
         >
           <FileText className="w-5 h-5" />
         </button>
         
         <button
           className="p-2 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors"
-          title="Ayarlar"
+          title="Settings"
         >
           <Settings className="w-5 h-5" />
         </button>
@@ -186,7 +185,7 @@ export function WorkflowToolbar() {
       {isExecuting && (
         <div className="flex items-center space-x-2 bg-yellow-100 text-yellow-800 px-3 py-2 rounded-lg">
           <div className="w-2 h-2 bg-yellow-600 rounded-full animate-pulse"></div>
-          <span className="text-sm font-medium">Çalışıyor...</span>
+          <span className="text-sm font-medium">Running...</span>
         </div>
       )}
     </div>

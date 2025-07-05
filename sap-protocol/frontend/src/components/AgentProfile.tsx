@@ -22,7 +22,7 @@ export function AgentProfile() {
   const mockAgentData: AgentData = {
     name: 'Sentiment Analysis Bot',
     description:
-      'Twitter sentiment analizi yapan AI agent. Pozitif/negatif/nötr sentiment skorları verir.',
+      'AI agent that performs Twitter sentiment analysis. Provides positive/negative/neutral sentiment scores.',
     zkVMEndpoint: 'https://zkvm-api.example.com/sentiment',
     owner: address || '0x0000000000000000000000000000000000000000',
     registeredAt: Date.now() - 86400000 * 7, // 7 days ago
@@ -42,13 +42,13 @@ export function AgentProfile() {
       : '0';
 
   const handleUpdateAgent = () => {
-    console.log('Agent bilgileri güncelleniyor...');
+    console.log('Updating agent information...');
     // Here we would call the smart contract
     setIsEditing(false);
   };
 
   const handleDeactivateAgent = () => {
-    console.log('Agent deaktif ediliyor...');
+    console.log('Deactivating agent...');
     // Here we would call the smart contract
   };
 
@@ -62,9 +62,9 @@ export function AgentProfile() {
               👤
             </div>
             <div>
-              <h2 className="text-3xl font-bold text-gray-900">Agent Profilim</h2>
+              <h2 className="text-3xl font-bold text-gray-900">My Agent Profile</h2>
               <p className="text-lg text-gray-600">
-                Agent bilgilerinizi ve performans metriklerinizi görüntüleyin
+                View your agent information and performance metrics
               </p>
             </div>
           </div>
@@ -73,13 +73,13 @@ export function AgentProfile() {
               onClick={() => setIsEditing(!isEditing)}
               className="px-6 py-3 text-sm font-semibold text-blue-600 bg-blue-50/80 backdrop-blur-sm rounded-xl hover:bg-blue-100/80 transition-all duration-200"
             >
-              {isEditing ? 'İptal' : 'Düzenle'}
+              {isEditing ? 'Cancel' : 'Edit'}
             </button>
             <button
               onClick={handleDeactivateAgent}
               className="px-6 py-3 text-sm font-semibold text-red-600 bg-red-50/80 backdrop-blur-sm rounded-xl hover:bg-red-100/80 transition-all duration-200"
             >
-              Deaktif Et
+              Deactivate
             </button>
           </div>
         </div>
@@ -91,12 +91,12 @@ export function AgentProfile() {
         <div className="xl:col-span-2">
           <div className="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8">
             <h3 className="text-xl font-semibold text-gray-900 mb-6">
-              Agent Bilgileri
+              Agent Information
             </h3>
             <div className="space-y-6">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Agent Adı
+                  Agent Name
                 </label>
                 {isEditing ? (
                   <input
@@ -110,7 +110,7 @@ export function AgentProfile() {
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Açıklama
+                  Description
                 </label>
                 {isEditing ? (
                   <textarea
@@ -140,10 +140,10 @@ export function AgentProfile() {
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Kayıt Tarihi
+                  Registration Date
                 </label>
                 <p className="text-gray-900">
-                  {new Date(mockAgentData.registeredAt).toLocaleString('tr-TR')}
+                  {new Date(mockAgentData.registeredAt).toLocaleString('en-US')}
                 </p>
               </div>
             </div>
@@ -154,7 +154,7 @@ export function AgentProfile() {
                   onClick={handleUpdateAgent}
                   className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-6 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
                 >
-                  Değişiklikleri Kaydet
+                  Save Changes
                 </button>
               </div>
             )}
@@ -171,8 +171,8 @@ export function AgentProfile() {
                   ●
                 </div>
                 <div>
-                  <h4 className="text-lg font-semibold text-gray-900">Durum</h4>
-                  <p className="text-sm text-gray-600">Agent durumu</p>
+                  <h4 className="text-lg font-semibold text-gray-900">Status</h4>
+                  <p className="text-sm text-gray-600">Agent status</p>
                 </div>
               </div>
               <span
@@ -182,7 +182,7 @@ export function AgentProfile() {
                     : 'bg-gradient-to-r from-red-400 to-red-600 text-white'
                 }`}
               >
-                {mockAgentData.isActive ? 'Aktif' : 'Deaktif'}
+                {mockAgentData.isActive ? 'Active' : 'Inactive'}
               </span>
             </div>
           </div>
@@ -194,22 +194,28 @@ export function AgentProfile() {
                 📊
               </div>
               <div>
-                <h4 className="text-lg font-semibold text-gray-900">Görev İstatistikleri</h4>
-                <p className="text-sm text-gray-600">Performans özeti</p>
+                <h4 className="text-lg font-semibold text-gray-900">Task Statistics</h4>
+                <p className="text-sm text-gray-600">Performance summary</p>
               </div>
             </div>
             <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <span className="text-sm font-medium text-gray-700">Toplam Görev</span>
-                <span className="text-2xl font-bold text-gray-900">{mockAgentData.taskCount}</span>
+                <span className="text-sm text-gray-600">Total Tasks</span>
+                <span className="text-lg font-semibold text-gray-900">
+                  {mockAgentData.taskCount}
+                </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm font-medium text-gray-700">Tamamlanan</span>
-                <span className="text-2xl font-bold text-green-600">{mockAgentData.completedTasks}</span>
+                <span className="text-sm text-gray-600">Completed</span>
+                <span className="text-lg font-semibold text-green-600">
+                  {mockAgentData.completedTasks}
+                </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm font-medium text-gray-700">Başarı Oranı</span>
-                <span className="text-2xl font-bold text-blue-600">{completionRate}%</span>
+                <span className="text-sm text-gray-600">Success Rate</span>
+                <span className="text-lg font-semibold text-blue-600">
+                  {completionRate}%
+                </span>
               </div>
             </div>
           </div>
@@ -217,49 +223,52 @@ export function AgentProfile() {
           {/* Rating */}
           <div className="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-6">
             <div className="flex items-center space-x-3 mb-4">
-              <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-xl flex items-center justify-center text-white">
+              <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 to-orange-600 rounded-xl flex items-center justify-center text-white">
                 ⭐
               </div>
               <div>
-                <h4 className="text-lg font-semibold text-gray-900">Değerlendirme</h4>
-                <p className="text-sm text-gray-600">Ortalama puan</p>
+                <h4 className="text-lg font-semibold text-gray-900">Rating</h4>
+                <p className="text-sm text-gray-600">Community feedback</p>
               </div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-gray-900 mb-2">
+              <div className="text-3xl font-bold text-yellow-600 mb-2">
                 {mockAgentData.score.toFixed(1)}
               </div>
-              <div className="flex justify-center space-x-1">
+              <div className="flex justify-center space-x-1 mb-2">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <span
                     key={star}
-                    className={`text-2xl ${
-                      star <= mockAgentData.score ? 'text-yellow-400' : 'text-gray-300'
+                    className={`text-lg ${
+                      star <= mockAgentData.score
+                        ? 'text-yellow-400'
+                        : 'text-gray-300'
                     }`}
                   >
-                    ★
+                    ⭐
                   </span>
                 ))}
               </div>
+              <p className="text-xs text-gray-500">Out of 5 stars</p>
             </div>
           </div>
 
           {/* Earnings */}
           <div className="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-6">
             <div className="flex items-center space-x-3 mb-4">
-              <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-green-600 rounded-xl flex items-center justify-center text-white">
+              <div className="w-10 h-10 bg-gradient-to-br from-purple-400 to-purple-600 rounded-xl flex items-center justify-center text-white">
                 💰
               </div>
               <div>
-                <h4 className="text-lg font-semibold text-gray-900">Kazanç</h4>
-                <p className="text-sm text-gray-600">Toplam token kazancı</p>
+                <h4 className="text-lg font-semibold text-gray-900">Earnings</h4>
+                <p className="text-sm text-gray-600">Total rewards earned</p>
               </div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-green-600 mb-2">
-                {(Number(mockAgentData.totalEarned) / 1e18).toFixed(1)}
+              <div className="text-2xl font-bold text-purple-600 mb-2">
+                {(Number(mockAgentData.totalEarned) / 1e18).toFixed(2)} Tokens
               </div>
-              <div className="text-sm text-gray-600">Token</div>
+              <p className="text-xs text-gray-500">All-time earnings</p>
             </div>
           </div>
         </div>
@@ -272,16 +281,16 @@ export function AgentProfile() {
             📈
           </div>
           <div>
-            <h3 className="text-xl font-semibold text-gray-900">Son Aktiviteler</h3>
-            <p className="text-gray-600">Son görev aktiviteleriniz</p>
+            <h3 className="text-xl font-semibold text-gray-900">Recent Activities</h3>
+            <p className="text-gray-600">Recent task activities</p>
           </div>
         </div>
         
         <div className="space-y-4">
           {[
-            { task: 'Sentiment analizi: "Bitcoin yeniden yükseliyor"', result: 'Pozitif (0.85)', time: '2 saat önce', status: 'completed' },
-            { task: 'Metin özetleme: Blockchain teknolojisi', result: 'Özet tamamlandı', time: '5 saat önce', status: 'completed' },
-            { task: 'Resim analizi: Kategori belirleme', result: 'Beklemede', time: '1 gün önce', status: 'pending' }
+            { task: 'Sentiment analysis: "Bitcoin is rising"', result: 'Positive (0.85)', time: '2 hours ago', status: 'completed' },
+            { task: 'Text summarization: Blockchain technology', result: 'Summary completed', time: '5 hours ago', status: 'completed' },
+            { task: 'Image analysis: Category identification', result: 'Pending', time: '1 day ago', status: 'pending' }
           ].map((activity, index) => (
             <div key={index} className="flex items-center space-x-4 p-4 bg-white/40 backdrop-blur-sm rounded-xl border border-white/20">
               <div className={`w-3 h-3 rounded-full ${activity.status === 'completed' ? 'bg-green-500' : 'bg-yellow-500'}`}></div>

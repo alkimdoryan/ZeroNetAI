@@ -107,7 +107,7 @@ export function ConnectorNode({ id, data, selected }: ConnectorNodeProps) {
 
       {/* Status indicator */}
       <div className="flex items-center justify-between">
-        <span className="text-xs text-gray-400">Bağlayıcı</span>
+        <span className="text-xs text-gray-400">Connector</span>
         <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
       </div>
 
@@ -119,22 +119,22 @@ export function ConnectorNode({ id, data, selected }: ConnectorNodeProps) {
               onClick={() => handleMenuAction('execute')}
               className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center space-x-2 rounded-lg transition-colors"
             >
-              <Play className="w-4 h-4 flex-shrink-0" />
-              <span className="whitespace-nowrap">Çalıştır</span>
+              <span>▶</span>
+              <span className="whitespace-nowrap">Run</span>
             </button>
             <button
               onClick={() => handleMenuAction('edit')}
               className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center space-x-2 rounded-lg transition-colors"
             >
               <Edit3 className="w-4 h-4 flex-shrink-0" />
-              <span className="whitespace-nowrap">Düzenle</span>
+              <span className="whitespace-nowrap">Edit</span>
             </button>
             <button
               onClick={() => handleMenuAction('copy')}
               className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center space-x-2 rounded-lg transition-colors"
             >
               <Copy className="w-4 h-4 flex-shrink-0" />
-              <span className="whitespace-nowrap">Kopyala</span>
+              <span className="whitespace-nowrap">Copy</span>
             </button>
             <div className="border-t border-gray-200 my-1" />
             <button
@@ -142,7 +142,7 @@ export function ConnectorNode({ id, data, selected }: ConnectorNodeProps) {
               className="w-full px-3 py-2 text-left text-sm hover:bg-red-50 text-red-600 flex items-center space-x-2 rounded-lg transition-colors"
             >
               <Trash2 className="w-4 h-4 flex-shrink-0" />
-              <span className="whitespace-nowrap">Sil</span>
+              <span className="whitespace-nowrap">Delete</span>
             </button>
           </div>
         </div>
