@@ -1,0 +1,67 @@
+{
+  "name": "sap-protocol",
+  "version": "1.0.0",
+  "description": "Sovereign Agent Protocol - A decentralized protocol for zkVM-ready BitNet LLM agents with WorldID integration and workflow orchestration.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "node --loader ts-node/esm agent/test.ts",
+    "test:agent": "node --loader ts-node/esm agent/test.ts",
+    "test:contracts": "hardhat test",
+    "build": "tsc",
+    "build:contracts": "hardhat compile",
+    "deploy": "hardhat run scripts/deploy-simple.js",
+    "deploy:mumbai": "hardhat run scripts/deploy-simple.js --network mumbai",
+    "deploy:polygon": "hardhat run scripts/deploy-simple.js --network polygon",
+    "deploy:localhost": "hardhat run scripts/deploy-simple.js --network localhost",
+    "dev": "tsx watch agent/test.ts",
+    "node": "hardhat node",
+    "clean": "hardhat clean",
+    "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
+    "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "type-check": "tsc --noEmit",
+    "prepare": "husky install"
+  },
+  "keywords": [
+    "blockchain",
+    "ai",
+    "zkvm",
+    "worldid",
+    "smart-contracts",
+    "workflow",
+    "defi"
+  ],
+  "author": "",
+  "license": "MIT",
+  "packageManager": "pnpm@10.12.4",
+  "devDependencies": {
+    "@eslint/js": "^9.30.1",
+    "@nomicfoundation/hardhat-toolbox": "^6.0.0",
+    "@types/node": "^24.0.10",
+    "@typescript-eslint/eslint-plugin": "8.35.1",
+    "@typescript-eslint/parser": "8.35.1",
+    "@worldcoin/idkit": "^2.2.2",
+    "eslint": "9.30.1",
+    "hardhat": "^2.25.0",
+    "husky": "9.1.7",
+    "lint-staged": "16.1.2",
+    "prettier": "3.6.2",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.20.3",
+    "typescript": "5.8.3"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ]
+  },
+  "dependencies": {
+    "ethers": "^6.15.0"
+  }
+}

@@ -1,0 +1,7 @@
+scripts/
+dist/
+build/
+node_modules/
+cache/
+artifacts/
+*.config.js 
