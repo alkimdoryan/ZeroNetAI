@@ -1,0 +1,76 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Build outputs
+dist/
+build/
+**/dist/
+**/build/
+
+# Cache directories
+.cache/
+.parcel-cache/
+**/.cache/
+
+# Package manager lock files
+yarn.lock
+pnpm-lock.yaml
+package-lock.json
+
+# Environment variables
+.env
+.env.local
+.env.production
+.env.test
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+**/logs/
+
+# Hardhat files
+cache/
+artifacts/
+**/cache/
+**/artifacts/
+
+# Coverage reports
+coverage/
+**/coverage/
+
+# TypeScript
+*.tsbuildinfo
+**/tsconfig.tsbuildinfo
+
+# Temporary files
+tmp/
+temp/
+**/tmp/
+**/temp/
+
+# Solidity
+*.bin
+*.abi
+typechain-types/
+**/typechain-types/
+
+# Vite
+vite.config.ts.timestamp-*
+vite.config.js.timestamp-* 
