@@ -108,3 +108,74 @@ export const getWorldIDErrorMessage = (error: string): string => {
   if (error.includes('wallet') || error.includes('connection')) return WORLDID_ERRORS.WALLET_NOT_CONNECTED;
   return WORLDID_ERRORS.GENERIC_ERROR;
 };
+
+// LLM API Configuration
+export const LLM_API_CONFIG = {
+  // OpenAI API Configuration
+  openai: {
+    baseURL: 'https://api.openai.com/v1',
+    apiKey: process.env.VITE_OPENAI_API_KEY || '',
+    model: 'gpt-3.5-turbo',
+    maxTokens: 2000,
+    temperature: 0.7,
+  },
+  
+  // Anthropic Claude API Configuration  
+  anthropic: {
+    baseURL: 'https://api.anthropic.com/v1',
+    apiKey: process.env.VITE_ANTHROPIC_API_KEY || '',
+    model: 'claude-3-sonnet-20240229',
+    maxTokens: 2000,
+    temperature: 0.7,
+  },
+  
+  // Local/Custom LLM Configuration
+  local: {
+    baseURL: process.env.VITE_LOCAL_LLM_URL || 'http://localhost:11434/v1',
+    model: 'llama2',
+    maxTokens: 2000,
+    temperature: 0.7,
+  },
+  
+  // Default provider
+  defaultProvider: 'openai',
+  
+  // System prompts
+  systemPrompts: {
+    default: 'You are a helpful AI assistant for the SAP Protocol. You can help users with agent registration, workflow creation, task management, and general questions about the platform.',
+    agent: 'You are an AI assistant specialized in helping users with SAP Protocol agent registration and management. Provide clear guidance on agent setup, zkVM configuration, and best practices.',
+    workflow: 'You are an AI assistant specialized in SAP Protocol workflow design. Help users create efficient workflows, understand node types, and optimize their automation processes.',
+    technical: 'You are a technical AI assistant for SAP Protocol developers. Provide detailed technical information about smart contracts, zkVM integration, and development best practices.'
+  }
+};
+
+// LLM API Helper Functions
+export const getLLMConfig = (provider: 'openai' | 'anthropic' | 'local' = 'openai') => {
+  return LLM_API_CONFIG[provider];
+};
+
+export const getSystemPrompt = (type: 'default' | 'agent' | 'workflow' | 'technical' = 'default') => {
+  return LLM_API_CONFIG.systemPrompts[type];
+};
+
+// Chat message types
+export interface ChatMessage {
+  id: string;
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+  timestamp: Date;
+  provider?: string;
+  model?: string;
+  tokens?: number;
+}
+
+// Chat session type
+export interface ChatSession {
+  id: string;
+  title: string;
+  messages: ChatMessage[];
+  createdAt: Date;
+  updatedAt: Date;
+  provider: string;
+  systemPrompt: string;
+}

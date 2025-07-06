@@ -134,7 +134,7 @@ phases:
   - name: "Phase 7: Testnet & Demo"
     tasks:
       - id: "7.1"
-        title: "Deploy to Mumbai"
+        title: "Deploy locally network"
         description: "Contracts via Hardhat, WorldID registration"
       - id: "7.2"
         title: "Run workflow demo"

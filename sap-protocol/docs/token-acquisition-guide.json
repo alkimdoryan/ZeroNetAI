@@ -1,0 +1,132 @@
+{
+  "title": "SAP Protocol Token Acquisition Guide",
+  "task": "Task 7.3: Acquire test tokens",
+  "steps": [
+    {
+      "step": 1,
+      "title": "Setup Mumbai Testnet in MetaMask",
+      "instructions": [
+        "Open MetaMask extension",
+        "Click network dropdown",
+        "Select \"Add Network\"",
+        "Enter Mumbai testnet details:",
+        "  - Network Name: Mumbai Testnet",
+        "  - RPC URL: https://rpc-mumbai.maticvigil.com",
+        "  - Chain ID: 80001",
+        "  - Symbol: MATIC",
+        "  - Block Explorer: https://mumbai.polygonscan.com"
+      ]
+    },
+    {
+      "step": 2,
+      "title": "Get Test MATIC from Faucets",
+      "instructions": [
+        "Copy your wallet address",
+        "Visit faucet websites (see faucet list below)",
+        "Paste wallet address",
+        "Complete verification requirements",
+        "Request test tokens",
+        "Wait for transaction confirmation"
+      ]
+    },
+    {
+      "step": 3,
+      "title": "Verify WorldID Identity",
+      "instructions": [
+        "Install WorldID app on mobile device",
+        "Complete identity verification process",
+        "Connect to SAP Protocol dApp",
+        "Initiate WorldID verification widget",
+        "Complete proof generation",
+        "Submit agent registration transaction"
+      ]
+    },
+    {
+      "step": 4,
+      "title": "Deploy and Test Contracts",
+      "instructions": [
+        "Set PRIVATE_KEY environment variable",
+        "Run deployment script with sufficient MATIC balance",
+        "Verify contracts on Mumbai Polygonscan",
+        "Test agent registration with WorldID proof",
+        "Submit sample tasks to TaskBoard"
+      ]
+    }
+  ],
+  "faucets": [
+    {
+      "name": "Polygon Faucet",
+      "url": "https://faucet.polygon.technology/",
+      "description": "Official Polygon faucet - requires social media verification",
+      "tokens": [
+        "MATIC"
+      ],
+      "dailyLimit": "0.2 MATIC",
+      "requirements": [
+        "Twitter/Discord verification",
+        "MetaMask wallet"
+      ]
+    },
+    {
+      "name": "Mumbai Faucet",
+      "url": "https://mumbaifaucet.com/",
+      "description": "Community faucet with simple interface",
+      "tokens": [
+        "MATIC"
+      ],
+      "dailyLimit": "0.1 MATIC",
+      "requirements": [
+        "Wallet address only"
+      ]
+    },
+    {
+      "name": "Alchemy Faucet",
+      "url": "https://www.alchemy.com/faucets/polygon-mumbai",
+      "description": "Alchemy developer faucet",
+      "tokens": [
+        "MATIC"
+      ],
+      "dailyLimit": "0.5 MATIC",
+      "requirements": [
+        "Alchemy account",
+        "Email verification"
+      ]
+    },
+    {
+      "name": "QuickNode Faucet",
+      "url": "https://faucet.quicknode.com/polygon/mumbai",
+      "description": "QuickNode infrastructure faucet",
+      "tokens": [
+        "MATIC"
+      ],
+      "dailyLimit": "0.1 MATIC",
+      "requirements": [
+        "QuickNode account"
+      ]
+    }
+  ],
+  "worldIdConfig": {
+    "appId": "app_staging_sap_protocol",
+    "actionId": "register-agent-v1",
+    "verificationLevel": "orb",
+    "requiredProofs": [
+      "unique_human",
+      "age_verification"
+    ],
+    "mumbaiRouter": "0x515f06B36E6D3b707eAecBdeD18d8B384944c87f"
+  },
+  "troubleshooting": [
+    {
+      "issue": "Faucet not working",
+      "solution": "Try different faucets, check daily limits, verify wallet address format"
+    },
+    {
+      "issue": "WorldID verification failing",
+      "solution": "Ensure latest app version, check network connection, try different verification level"
+    },
+    {
+      "issue": "Transaction failing",
+      "solution": "Check gas fees, verify contract addresses, ensure sufficient MATIC balance"
+    }
+  ]
+}

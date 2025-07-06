@@ -5,18 +5,20 @@ import { AgentRegistration } from './AgentRegistration';
 import { TaskBoard } from './TaskBoard';
 import { AgentProfile } from './AgentProfile';
 import { WorkflowDesignerPro } from './workflow/WorkflowDesignerPro';
+import { ChatBot } from './ChatBot';
 import { getDemoWorkflow } from '../data/demoWorkflowData';
 
 export function Dashboard() {
   const { isConnected } = useAccount();
-  const [activeTab, setActiveTab] = useState<'tasks' | 'register' | 'profile' | 'workflow'>(
+  const [activeTab, setActiveTab] = useState<'tasks' | 'register' | 'profile' | 'workflow' | 'chat'>(
     'tasks'
   );
 
   const tabs = [
     { id: 'tasks', label: 'Tasks', icon: '📋' },
     { id: 'workflow', label: 'Workflow Designer', icon: '🔄' },
-    { id: 'register', label: 'Agent Registration', icon: '🤖' },
+    { id: 'chat', label: 'AI Assistant', icon: '🤖' },
+    { id: 'register', label: 'Agent Registration', icon: '⚙️' },
     { id: 'profile', label: 'Profile', icon: '👤' },
   ];
 
@@ -80,7 +82,7 @@ export function Dashboard() {
                     <button
                       key={tab.id}
                       onClick={() =>
-                        setActiveTab(tab.id as 'tasks' | 'register' | 'profile' | 'workflow')
+                        setActiveTab(tab.id as 'tasks' | 'register' | 'profile' | 'workflow' | 'chat')
                       }
                       className={`${
                         activeTab === tab.id
@@ -113,6 +115,7 @@ export function Dashboard() {
                   onLoad={() => ({ nodes: [], edges: [] })}
                 />
               )}
+              {activeTab === 'chat' && <ChatBot />}
               {activeTab === 'register' && <AgentRegistration />}
               {activeTab === 'profile' && <AgentProfile />}
             </div>

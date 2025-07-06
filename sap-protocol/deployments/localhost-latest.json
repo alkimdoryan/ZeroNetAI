@@ -1,0 +1,9 @@
+{
+  "agentRegistry": "0x7a2088a1bFc9d81c55368AE168C2C02570cB814F",
+  "taskBoard": "0x09635F643e140090A9A8Dcd712eD6285858ceBef",
+  "rewardToken": "0xc5a5C42992dECbae36851359345FE25997F5C42d",
+  "worldIdRouter": "0x0000000000000000000000000000000000000001",
+  "network": "localhost",
+  "blockNumber": 33,
+  "timestamp": 1751759345
+}
