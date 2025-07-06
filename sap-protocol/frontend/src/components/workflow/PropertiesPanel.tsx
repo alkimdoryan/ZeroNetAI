@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { X, Save, Settings, Bot, Play, GitBranch, Zap } from 'lucide-react';
 import type { Node } from '@xyflow/react';
 
@@ -9,7 +9,7 @@ interface PropertiesPanelProps {
 }
 
 export function PropertiesPanel({ selectedNode, onClose, onUpdateNode }: PropertiesPanelProps) {
-  const [formData, setFormData] = useState(selectedNode?.data || {});
+  const [formData, setFormData] = useState<Record<string, any>>(selectedNode?.data || {});
 
   if (!selectedNode) return null;
 
@@ -40,7 +40,7 @@ export function PropertiesPanel({ selectedNode, onClose, onUpdateNode }: Propert
           Trigger Type
         </label>
         <select
-          value={formData.triggerType || 'manual'}
+          value={String(formData.triggerType || 'manual')}
           onChange={(e) => setFormData({ ...formData, triggerType: e.target.value })}
           className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         >
@@ -57,7 +57,7 @@ export function PropertiesPanel({ selectedNode, onClose, onUpdateNode }: Propert
           </label>
           <input
             type="number"
-            value={formData.interval || 5}
+            value={Number(formData.interval || 5)}
             onChange={(e) => setFormData({ ...formData, interval: parseInt(e.target.value) })}
             className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             min="1"
@@ -72,7 +72,7 @@ export function PropertiesPanel({ selectedNode, onClose, onUpdateNode }: Propert
           </label>
           <input
             type="text"
-            value={formData.webhookUrl || ''}
+            value={String(formData.webhookUrl || '')}
             onChange={(e) => setFormData({ ...formData, webhookUrl: e.target.value })}
             className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             placeholder="https://api.example.com/webhook"
@@ -89,7 +89,7 @@ export function PropertiesPanel({ selectedNode, onClose, onUpdateNode }: Propert
           Agent Type
         </label>
         <select
-          value={formData.agentType || 'general'}
+          value={String(formData.agentType || 'general')}
           onChange={(e) => setFormData({ ...formData, agentType: e.target.value })}
           className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         >
@@ -105,7 +105,7 @@ export function PropertiesPanel({ selectedNode, onClose, onUpdateNode }: Propert
           System Message
         </label>
         <textarea
-          value={formData.systemMessage || ''}
+          value={String(formData.systemMessage || '')}
           onChange={(e) => setFormData({ ...formData, systemMessage: e.target.value })}
           className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 h-24"
           placeholder="System message to define agent behavior..."
@@ -121,12 +121,12 @@ export function PropertiesPanel({ selectedNode, onClose, onUpdateNode }: Propert
           min="0"
           max="1"
           step="0.1"
-          value={formData.confidenceThreshold || 0.7}
+          value={Number(formData.confidenceThreshold || 0.7)}
           onChange={(e) => setFormData({ ...formData, confidenceThreshold: parseFloat(e.target.value) })}
           className="w-full"
         />
         <div className="text-sm text-gray-500 mt-1">
-          {((formData.confidenceThreshold || 0.7) * 100).toFixed(0)}%
+          {(Number(formData.confidenceThreshold || 0.7) * 100).toFixed(0)}%
         </div>
       </div>
     </div>
@@ -139,7 +139,7 @@ export function PropertiesPanel({ selectedNode, onClose, onUpdateNode }: Propert
           Condition Type
         </label>
         <select
-          value={formData.conditionType || 'value'}
+          value={String(formData.conditionType || 'value')}
           onChange={(e) => setFormData({ ...formData, conditionType: e.target.value })}
           className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         >
@@ -156,7 +156,7 @@ export function PropertiesPanel({ selectedNode, onClose, onUpdateNode }: Propert
         </label>
         <input
           type="text"
-          value={formData.condition || ''}
+          value={String(formData.condition || '')}
           onChange={(e) => setFormData({ ...formData, condition: e.target.value })}
           className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           placeholder="For example: confidence > 0.8"
@@ -169,7 +169,7 @@ export function PropertiesPanel({ selectedNode, onClose, onUpdateNode }: Propert
         </label>
         <input
           type="text"
-          value={formData.trueLabel || 'True'}
+          value={String(formData.trueLabel || 'True')}
           onChange={(e) => setFormData({ ...formData, trueLabel: e.target.value })}
           className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         />
@@ -181,7 +181,7 @@ export function PropertiesPanel({ selectedNode, onClose, onUpdateNode }: Propert
         </label>
         <input
           type="text"
-          value={formData.falseLabel || 'False'}
+          value={String(formData.falseLabel || 'False')}
           onChange={(e) => setFormData({ ...formData, falseLabel: e.target.value })}
           className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         />
@@ -196,26 +196,26 @@ export function PropertiesPanel({ selectedNode, onClose, onUpdateNode }: Propert
           Connector Type
         </label>
         <select
-          value={formData.connectorType || 'api'}
+          value={String(formData.connectorType || 'api')}
           onChange={(e) => setFormData({ ...formData, connectorType: e.target.value })}
           className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         >
-          <option value="api">API Request</option>
+          <option value="api">API</option>
           <option value="database">Database</option>
+          <option value="webhook">Webhook</option>
           <option value="email">Email</option>
-          <option value="slack">Slack</option>
         </select>
       </div>
 
       {formData.connectorType === 'api' && (
-        <>
+        <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               API URL
             </label>
             <input
               type="text"
-              value={formData.apiUrl || ''}
+              value={String(formData.apiUrl || '')}
               onChange={(e) => setFormData({ ...formData, apiUrl: e.target.value })}
               className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               placeholder="https://api.example.com/endpoint"
@@ -224,10 +224,10 @@ export function PropertiesPanel({ selectedNode, onClose, onUpdateNode }: Propert
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              HTTP Method
+              Method
             </label>
             <select
-              value={formData.method || 'GET'}
+              value={String(formData.method || 'GET')}
               onChange={(e) => setFormData({ ...formData, method: e.target.value })}
               className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
@@ -243,121 +243,80 @@ export function PropertiesPanel({ selectedNode, onClose, onUpdateNode }: Propert
               Headers (JSON)
             </label>
             <textarea
-              value={formData.headers || '{}'}
+              value={String(formData.headers || '{}')}
               onChange={(e) => setFormData({ ...formData, headers: e.target.value })}
               className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 h-20"
               placeholder='{"Content-Type": "application/json"}'
             />
           </div>
-        </>
+        </div>
       )}
     </div>
   );
 
   const renderNodeSettings = () => {
-    switch (selectedNode.type) {
-      case 'trigger':
-        return renderTriggerSettings();
-      case 'agent':
-        return renderAgentSettings();
-      case 'condition':
-        return renderConditionSettings();
-      case 'connector':
-        return renderConnectorSettings();
-      default:
-        return <div className="text-gray-500">No settings available for this node type.</div>;
-    }
-  };
-
-  return (
-    <div className="h-full flex flex-col">
-      {/* Header */}
-      <div className="p-4 border-b border-gray-200">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center text-white">
-              {renderNodeIcon(selectedNode.type!)}
-            </div>
+    const nodeType = selectedNode.type || 'default';
+    
+    return (
+      <div className="space-y-6">
+        {/* Node-specific settings */}
+        {nodeType === 'trigger' && renderTriggerSettings()}
+        {nodeType === 'agent' && renderAgentSettings()}
+        {nodeType === 'condition' && renderConditionSettings()}
+        {nodeType === 'connector' && renderConnectorSettings()}
+        
+        {/* Common settings */}
+        <div className="border-t pt-6">
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Common Settings</h3>
+          <div className="space-y-4">
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">Node Settings</h3>
-              <p className="text-sm text-gray-500">{selectedNode.type} - {selectedNode.id}</p>
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-6">
-        {/* Basic Settings */}
-        <div>
-          <h4 className="text-sm font-medium text-gray-700 mb-3">Basic Settings</h4>
-          <div className="space-y-3">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Node Name
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Node Label
               </label>
               <input
                 type="text"
-                value={formData.label || ''}
+                value={String(formData.label || '')}
                 onChange={(e) => setFormData({ ...formData, label: e.target.value })}
                 className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Node name..."
+                placeholder="Enter node label"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Description
               </label>
               <textarea
-                value={formData.description || ''}
+                value={String(formData.description || '')}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 h-16"
-                placeholder="Node description..."
+                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 h-20"
+                placeholder="Enter node description"
               />
             </div>
-          </div>
-        </div>
 
-        {/* Node-specific Settings */}
-        <div>
-          <h4 className="text-sm font-medium text-gray-700 mb-3">Specific Settings</h4>
-          {renderNodeSettings()}
-        </div>
-
-        {/* Advanced Settings */}
-        <div>
-          <h4 className="text-sm font-medium text-gray-700 mb-3">Advanced Settings</h4>
-          <div className="space-y-3">
             <div className="flex items-center space-x-2">
               <input
                 type="checkbox"
                 id="retryOnError"
-                checked={formData.retryOnError || false}
+                checked={Boolean(formData.retryOnError)}
                 onChange={(e) => setFormData({ ...formData, retryOnError: e.target.checked })}
                 className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
               <label htmlFor="retryOnError" className="text-sm text-gray-700">
-                Retry on error
+                Enable retry on error
               </label>
             </div>
 
             {formData.retryOnError && (
               <div className="ml-6">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Retry count
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Retry Count
                 </label>
                 <input
                   type="number"
-                  value={formData.retryCount || 3}
+                  value={Number(formData.retryCount || 3)}
                   onChange={(e) => setFormData({ ...formData, retryCount: parseInt(e.target.value) })}
-                  className="w-20 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   min="1"
                   max="10"
                 />
@@ -365,36 +324,64 @@ export function PropertiesPanel({ selectedNode, onClose, onUpdateNode }: Propert
             )}
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Timeout (seconds)
               </label>
               <input
                 type="number"
-                value={formData.timeout || 30}
+                value={Number(formData.timeout || 30)}
                 onChange={(e) => setFormData({ ...formData, timeout: parseInt(e.target.value) })}
                 className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 min="1"
+                max="300"
               />
             </div>
           </div>
         </div>
       </div>
+    );
+  };
 
-      {/* Footer */}
-      <div className="p-4 border-t border-gray-200">
-        <div className="flex justify-end space-x-3">
+  return (
+    <div className="fixed inset-y-0 right-0 w-96 bg-white shadow-xl border-l border-gray-200 flex flex-col z-50">
+      {/* Header */}
+      <div className="px-6 py-4 border-b border-gray-200">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            {renderNodeIcon(selectedNode.type || 'default')}
+            <h2 className="text-lg font-semibold text-gray-900">
+              {selectedNode.type?.charAt(0).toUpperCase()}{selectedNode.type?.slice(1)} Settings
+            </h2>
+          </div>
           <button
             onClick={onClose}
-            className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+            className="p-2 text-gray-400 hover:text-gray-600 rounded-lg transition-colors"
           >
-            Cancel
+            <X className="w-5 h-5" />
           </button>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto px-6 py-4">
+        {renderNodeSettings()}
+      </div>
+
+      {/* Footer */}
+      <div className="px-6 py-4 border-t border-gray-200">
+        <div className="flex space-x-3">
           <button
             onClick={handleSave}
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2"
+            className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2"
           >
             <Save className="w-4 h-4" />
-            <span>Save</span>
+            <span>Save Changes</span>
+          </button>
+          <button
+            onClick={onClose}
+            className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            Cancel
           </button>
         </div>
       </div>
