@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Play, 
   Pause, 
@@ -10,11 +10,30 @@ import {
   Redo, 
   FileText,
   Plus,
-  Settings
+  Settings,
+  X
 } from 'lucide-react';
 import { useWorkflowStore } from '../../store/workflowStore';
+import { 
+  isWorldIDBypassEnabled,
+  WORLDID_BYPASS_CONFIG
+} from '../../config/contracts';
 
-export function WorkflowToolbar() {
+interface WorkflowToolbarProps {
+  onSave: () => void;
+  onLoad?: () => void;
+  onExport?: () => void;
+  onImport?: () => void;
+  disabled?: boolean;
+}
+
+export function WorkflowToolbar({ 
+  onSave, 
+  onLoad, 
+  onExport, 
+  onImport, 
+  disabled = false 
+}: WorkflowToolbarProps) {
   const { 
     workflows, 
     activeWorkflow, 
@@ -23,6 +42,7 @@ export function WorkflowToolbar() {
     createWorkflow,
     clearLogs 
   } = useWorkflowStore();
+  const [showBypassConfig, setShowBypassConfig] = useState(false);
 
   const handleExecute = () => {
     if (activeWorkflow) {
@@ -83,6 +103,24 @@ export function WorkflowToolbar() {
 
   return (
     <div className="flex items-center space-x-2">
+      {/* WorldID Bypass Status */}
+      {WORLDID_BYPASS_CONFIG.enabled && (
+        <div className="flex items-center space-x-2 mr-4">
+          <div className="flex items-center px-3 py-1 bg-yellow-100 border border-yellow-300 rounded-lg">
+            <span className="text-yellow-700 text-sm font-medium">
+              🚀 WorldID Bypass Active
+            </span>
+          </div>
+          <button
+            onClick={() => setShowBypassConfig(!showBypassConfig)}
+            className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+            title="Configure WorldID Bypass"
+          >
+            <Settings className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
       {/* Workflow Controls */}
       <div className="flex items-center space-x-1 bg-white/80 backdrop-blur-sm rounded-xl p-1 shadow-md">
         <button
@@ -118,7 +156,8 @@ export function WorkflowToolbar() {
         </button>
         
         <button
-          onClick={handleSaveWorkflow}
+          onClick={onSave}
+          disabled={disabled}
           className="p-2 rounded-lg text-blue-600 hover:bg-blue-50 transition-colors"
           title="Save"
         >
@@ -126,10 +165,10 @@ export function WorkflowToolbar() {
         </button>
         
         <button
-          onClick={handleExportWorkflow}
-          disabled={!activeWorkflow}
+          onClick={onExport}
+          disabled={disabled}
           className={`p-2 rounded-lg transition-colors ${
-            !activeWorkflow
+            disabled
               ? 'text-gray-400 cursor-not-allowed'
               : 'text-blue-600 hover:bg-blue-50'
           }`}
@@ -139,8 +178,13 @@ export function WorkflowToolbar() {
         </button>
         
         <button
-          onClick={handleImportWorkflow}
-          className="p-2 rounded-lg text-blue-600 hover:bg-blue-50 transition-colors"
+          onClick={onImport}
+          disabled={disabled}
+          className={`p-2 rounded-lg transition-colors ${
+            disabled
+              ? 'text-gray-400 cursor-not-allowed'
+              : 'text-purple-600 hover:bg-purple-50'
+          }`}
           title="Import"
         >
           <Upload className="w-5 h-5" />
@@ -186,6 +230,94 @@ export function WorkflowToolbar() {
         <div className="flex items-center space-x-2 bg-yellow-100 text-yellow-800 px-3 py-2 rounded-lg">
           <div className="w-2 h-2 bg-yellow-600 rounded-full animate-pulse"></div>
           <span className="text-sm font-medium">Running...</span>
+        </div>
+      )}
+
+      {/* Bypass Configuration Panel */}
+      {showBypassConfig && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-bold text-gray-900">WorldID Bypass Configuration</h3>
+              <button
+                onClick={() => setShowBypassConfig(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <div className="flex items-center space-x-2 mb-2">
+                  <span className="text-yellow-600">⚠️</span>
+                  <p className="text-yellow-800 font-medium">Development Mode</p>
+                </div>
+                <p className="text-yellow-700 text-sm">
+                  WorldID bypass is currently enabled for development and testing purposes.
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">Agent Registration</p>
+                    <p className="text-xs text-gray-500">Skip WorldID for agent registration</p>
+                  </div>
+                  <div className={`w-10 h-6 rounded-full p-1 ${WORLDID_BYPASS_CONFIG.agentRegistration ? 'bg-green-500' : 'bg-gray-300'}`}>
+                    <div className={`w-4 h-4 rounded-full bg-white transition-transform ${WORLDID_BYPASS_CONFIG.agentRegistration ? 'translate-x-4' : ''}`} />
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">Workflow Save</p>
+                    <p className="text-xs text-gray-500">Skip WorldID for workflow saving</p>
+                  </div>
+                  <div className={`w-10 h-6 rounded-full p-1 ${WORLDID_BYPASS_CONFIG.workflowSave ? 'bg-green-500' : 'bg-gray-300'}`}>
+                    <div className={`w-4 h-4 rounded-full bg-white transition-transform ${WORLDID_BYPASS_CONFIG.workflowSave ? 'translate-x-4' : ''}`} />
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">Custom Node Creation</p>
+                    <p className="text-xs text-gray-500">Skip WorldID for custom nodes</p>
+                  </div>
+                  <div className={`w-10 h-6 rounded-full p-1 ${WORLDID_BYPASS_CONFIG.customNodeCreation ? 'bg-green-500' : 'bg-gray-300'}`}>
+                    <div className={`w-4 h-4 rounded-full bg-white transition-transform ${WORLDID_BYPASS_CONFIG.customNodeCreation ? 'translate-x-4' : ''}`} />
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                <h4 className="text-sm font-medium text-gray-900 mb-2">Mock Proof Data</h4>
+                <div className="space-y-2 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Merkle Root:</span>
+                    <span className="font-mono text-gray-800">{WORLDID_BYPASS_CONFIG.mockProof.merkle_root.slice(0, 10)}...</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Nullifier:</span>
+                    <span className="font-mono text-gray-800">{WORLDID_BYPASS_CONFIG.mockProof.nullifier_hash.slice(0, 10)}...</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Level:</span>
+                    <span className="font-mono text-gray-800">{WORLDID_BYPASS_CONFIG.mockProof.verification_level}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 flex justify-end">
+              <button
+                onClick={() => setShowBypassConfig(false)}
+                className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

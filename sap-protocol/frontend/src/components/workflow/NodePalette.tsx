@@ -21,13 +21,16 @@ import {
   Filter,
   Plus,
   Layers,
-  X
+  X,
+  Move
 } from 'lucide-react';
 import { IDKitWidget, type ISuccessResult, type IErrorState, VerificationLevel } from '@worldcoin/idkit';
 import { 
   WORLDID_APP_ID, 
   WORLDID_ACTION_CREATE_NODE,
-  getWorldIDErrorMessage 
+  getWorldIDErrorMessage,
+  isWorldIDBypassEnabled,
+  simulateWorldIDSuccess
 } from '../../config/contracts';
 
 interface NodeType {
@@ -247,158 +250,138 @@ export function NodePalette() {
     setError(errorMessage);
   };
 
+  const handleCreateNodeClick = () => {
+    // Check if WorldID bypass is enabled
+    if (isWorldIDBypassEnabled('create-custom-node')) {
+      console.log('🚀 WorldID bypass enabled for custom node creation');
+      simulateWorldIDSuccess(handleWorldIDSuccess, 500);
+      return;
+    }
+
+    // Normal flow - show create modal
+    setShowCreateModal(true);
+  };
+
+  const handleCreateNode = () => {
+    // Logic for creating custom node
+    console.log('Creating custom node:', newNodeData);
+    
+    // Reset form and close modal
+    setNewNodeData({
+      name: '',
+      description: '',
+      category: 'custom',
+      parameters: []
+    });
+    setShowCreateModal(false);
+    setIsWorldIDVerified(false);
+    setError('');
+    
+    alert(`Custom node "${newNodeData.name}" created successfully!`);
+  };
+
   return (
-    <div className="p-6 space-y-6">
-      <div className="text-center">
-        <h2 className="text-lg font-semibold text-gray-900 mb-2">Node Library</h2>
-        <p className="text-sm text-gray-600">Drag and drop to canvas</p>
-      </div>
+    <div className="bg-white border-r border-gray-200 h-full flex flex-col">
+      {/* Header */}
+      <div className="p-4 border-b border-gray-200">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-gray-900">Node Library</h2>
+          
+          {/* Bypass Mode Indicator */}
+          {isWorldIDBypassEnabled('create-custom-node') && (
+            <div className="flex items-center px-2 py-1 bg-yellow-100 border border-yellow-300 rounded-lg">
+              <span className="text-yellow-700 text-xs font-medium">
+                🚀 Bypass
+              </span>
+            </div>
+          )}
+        </div>
+        
+        {/* Search */}
+        <div className="relative mb-4">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+          <input
+            type="text"
+            placeholder="Search nodes..."
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
 
-      {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-        <input
-          type="text"
-          placeholder="Search for nodes to add..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full pl-10 pr-4 py-3 bg-white border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm shadow-sm"
-        />
-        {searchQuery && (
-          <button
-            onClick={() => setSearchQuery('')}
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-          >
-            ✕
-          </button>
-        )}
-      </div>
-
-      {/* Category Filters */}
-      <div className="space-y-2">
-        <h3 className="text-sm font-medium text-gray-700">Categories</h3>
-        <div className="flex flex-wrap gap-2">
-          <button
-            onClick={() => setActiveCategory('all')}
-            className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-              activeCategory === 'all'
-                ? 'bg-blue-500 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            All
-          </button>
-          {categories.map((category) => (
+        {/* Category Filter */}
+        <div className="flex flex-wrap gap-2 text-xs">
+          {categories.map(category => (
             <button
               key={category.id}
               onClick={() => setActiveCategory(category.id)}
-              className={`px-3 py-1 rounded-full text-xs font-medium transition-colors flex items-center space-x-1 ${
+              className={`px-3 py-1 rounded-full border transition-colors ${
                 activeCategory === category.id
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? 'bg-blue-50 border-blue-200 text-blue-700'
+                  : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'
               }`}
             >
-              {category.icon}
-              <span>{category.label}</span>
+              {category.label}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Search Result Info */}
-      {searchQuery && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-          <p className="text-sm text-blue-800">
-            <span className="font-medium">"{searchQuery}"</span> found {filteredNodes.length} nodes.
-            {filteredNodes.length > 0 ? ' Drag and drop to add to your workflow.' : ' Try different keywords.'}
-          </p>
-        </div>
-      )}
-
       {/* Node List */}
-      <div className="space-y-4">
-        {activeCategory === 'all' ? (
-          // Grouped display for all categories
-          categories.map((category) => {
-            const categoryNodes = filteredNodes.filter(node => node.category === category.id);
-            if (categoryNodes.length === 0) return null;
-            
-            return (
-              <div key={category.id} className="space-y-3">
-                <div className="flex items-center space-x-2 text-sm font-medium text-gray-700 border-b border-gray-200 pb-2">
-                  {category.icon}
-                  <span>{category.label}</span>
-                  <span className="text-xs text-gray-500">({categoryNodes.length})</span>
-                </div>
-                
-                <div className="space-y-2">
-                  {categoryNodes.map((node) => (
-                    <NodeCard key={node.id} node={node} onDragStart={onDragStart} />
-                  ))}
-                </div>
-              </div>
-            );
-          })
-        ) : (
-          // Flat list for single category
-          <div className="space-y-2">
-            {filteredNodes.map((node) => (
-              <NodeCard key={node.id} node={node} onDragStart={onDragStart} />
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Create Custom Node */}
-      <div className="mt-8 pt-6 border-t border-gray-200">
-        <button 
-          onClick={() => setShowCreateModal(true)}
-          className="w-full p-4 bg-gradient-to-r from-purple-50 to-indigo-50 border-2 border-dashed border-purple-200 rounded-xl hover:border-purple-300 transition-colors group"
-        >
-          <div className="flex items-center justify-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center text-white group-hover:scale-110 transition-transform">
-              <Plus className="w-5 h-5" />
-            </div>
-            <div className="text-left">
-              <h3 className="font-medium text-purple-900">Create Custom Node</h3>
-              <p className="text-sm text-purple-600">Design your own node</p>
-            </div>
-          </div>
-        </button>
-      </div>
-
-      {/* Ready Templates */}
-      <div className="space-y-3">
-        <h3 className="text-sm font-medium text-gray-700 flex items-center space-x-2">
-          <Layers className="w-4 h-4" />
-          <span>Ready Templates</span>
-        </h3>
-        <div className="space-y-2">
-          {[
-            { name: 'API → Database', desc: 'HTTP → Transform → Database', nodes: 3 },
-            { name: 'Sentiment Analysis', desc: 'Webhook → Agent → Notification', nodes: 3 },
-            { name: 'Data Pipeline', desc: 'Timer → Loop → Transform → Email', nodes: 4 },
-            { name: 'Error Management', desc: 'HTTP → Error Handler → Retry', nodes: 3 }
-          ].map((template, index) => (
+      <div className="flex-1 overflow-y-auto p-4">
+        <div className="space-y-3">
+          {filteredNodes.map((node) => (
             <div
-              key={index}
-              className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-3 cursor-pointer hover:shadow-md transition-shadow"
+              key={node.type}
+              draggable
+              onDragStart={(e) => onDragStart(e, node.type)}
+              className="group relative bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md hover:border-blue-300 transition-all cursor-move"
             >
-              <div className="flex justify-between items-start">
-                <div>
-                  <div className="text-sm font-medium text-blue-900">{template.name}</div>
-                  <div className="text-xs text-blue-600 mt-1">{template.desc}</div>
-                </div>
-                <div className="text-xs text-blue-500 bg-blue-100 px-2 py-1 rounded">
-                  {template.nodes} nodes
-                </div>
+              <div className="flex items-start space-x-3">
+                                 <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg bg-gradient-to-r ${node.gradient}`}>
+                   {node.icon}
+                 </div>
+                 <div className="flex-1 min-w-0">
+                   <h3 className="font-medium text-gray-900 text-sm truncate">
+                     {node.label}
+                   </h3>
+                   <p className="text-xs text-gray-500 line-clamp-2">
+                     {node.description}
+                   </p>
+                   <div className="flex flex-wrap gap-1 mt-2">
+                     <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                       {node.category}
+                     </span>
+                     {node.isNew && (
+                       <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                         New
+                       </span>
+                     )}
+                   </div>
+                 </div>
+              </div>
+              
+              {/* Drag Indicator */}
+              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <Move className="w-4 h-4 text-gray-400" />
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Custom Node Creation Modal */}
+      {/* Create Custom Node Button */}
+      <div className="p-4 border-t border-gray-200">
+        <button
+          onClick={handleCreateNodeClick}
+          className="w-full flex items-center justify-center space-x-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white py-3 px-4 rounded-lg font-medium hover:shadow-lg transition-all duration-200"
+        >
+          <Plus className="w-4 h-4" />
+          <span>Create Custom Node</span>
+        </button>
+      </div>
+
+      {/* Create Node Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl">
@@ -412,6 +395,18 @@ export function NodePalette() {
               </button>
             </div>
             
+            {/* Bypass Mode Indicator */}
+            {isWorldIDBypassEnabled('create-custom-node') && (
+              <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <div className="flex items-center space-x-2">
+                  <span className="text-yellow-600">🚀</span>
+                  <p className="text-yellow-800 text-sm font-medium">
+                    Bypass Mode Active - WorldID verification disabled
+                  </p>
+                </div>
+              </div>
+            )}
+            
             {!isWorldIDVerified ? (
               <div className="space-y-6">
                 <div className="text-center">
@@ -419,10 +414,16 @@ export function NodePalette() {
                     <Bot className="w-8 h-8 text-white" />
                   </div>
                   <h4 className="text-lg font-semibold text-gray-900 mb-2">
-                    Identity Verification Required
+                    {isWorldIDBypassEnabled('create-custom-node')
+                      ? 'Create Custom Node (Bypass Mode)'
+                      : 'Identity Verification Required'
+                    }
                   </h4>
                   <p className="text-gray-600 mb-6">
-                    You need to verify your identity with WorldID to create custom nodes.
+                    {isWorldIDBypassEnabled('create-custom-node')
+                      ? 'WorldID verification is bypassed for development.'
+                      : 'You need to verify your identity with WorldID to create custom nodes.'
+                    }
                   </p>
                 </div>
                 
@@ -436,80 +437,85 @@ export function NodePalette() {
                   </div>
                 )}
                 
-                <IDKitWidget
-                  app_id={WORLDID_APP_ID}
-                  action={WORLDID_ACTION_CREATE_NODE}
-                  signal="create-node"
-                  verification_level={VerificationLevel.Device}
-                  handleVerify={handleWorldIDSuccess}
-                  onSuccess={() => console.log('WorldID verification completed')}
-                  onError={handleWorldIDError}
-                >
-                  {({ open }) => (
-                    <button
-                      onClick={open}
-                      className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 text-white py-3 px-6 rounded-xl font-semibold hover:shadow-lg transition-all duration-200"
-                    >
-                      Verify with WorldID
-                    </button>
-                  )}
-                </IDKitWidget>
+                {isWorldIDBypassEnabled('create-custom-node') ? (
+                  // Bypass Mode - Direct verify button
+                  <button
+                    onClick={() => handleWorldIDSuccess({
+                      proof: 'bypass-proof',
+                      merkle_root: 'bypass-root',
+                      nullifier_hash: 'bypass-nullifier',
+                      verification_level: VerificationLevel.Device
+                    })}
+                    className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 text-white py-3 px-6 rounded-xl font-semibold hover:shadow-lg transition-all duration-200"
+                  >
+                    Verify Identity (Bypass)
+                  </button>
+                ) : (
+                  // Normal WorldID flow
+                  <IDKitWidget
+                    app_id={WORLDID_APP_ID}
+                    action={WORLDID_ACTION_CREATE_NODE}
+                    signal="create-node"
+                    verification_level={VerificationLevel.Device}
+                    handleVerify={handleWorldIDSuccess}
+                    onSuccess={() => console.log('WorldID verification completed')}
+                    onError={handleWorldIDError}
+                  >
+                    {({ open }: { open: () => void }) => (
+                      <button
+                        onClick={open}
+                        className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 text-white py-3 px-6 rounded-xl font-semibold hover:shadow-lg transition-all duration-200"
+                      >
+                        Verify with WorldID
+                      </button>
+                    )}
+                  </IDKitWidget>
+                )}
 
-                <div className="text-center">
-                  <p className="text-xs text-gray-500">
-                    Scan the QR code with the WorldID app
-                  </p>
-                </div>
+                {!isWorldIDBypassEnabled('create-custom-node') && (
+                  <div className="text-center">
+                    <p className="text-xs text-gray-500">
+                      Scan the QR code with the WorldID app
+                    </p>
+                  </div>
+                )}
               </div>
             ) : (
+              // Node creation form after verification
               <div className="space-y-6">
-                <div className="text-center mb-4">
-                  <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                    <span className="text-green-600 text-xl">✓</span>
+                <div className="text-center">
+                  <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-green-600 text-2xl">✓</span>
                   </div>
-                  <p className="text-sm text-green-600 font-medium">Identity verification successful!</p>
+                  <p className="text-sm text-green-600 mb-6">Identity verification successful!</p>
                 </div>
                 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Node Name
-                  </label>
-                  <input
-                    type="text"
-                    value={newNodeData.name}
-                    onChange={(e) => setNewNodeData({...newNodeData, name: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    placeholder="e.g. Web Scraper Node"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Description
-                  </label>
-                  <textarea
-                    value={newNodeData.description}
-                    onChange={(e) => setNewNodeData({...newNodeData, description: e.target.value})}
-                    rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    placeholder="Describe what the node does..."
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Category
-                  </label>
-                  <select
-                    value={newNodeData.category}
-                    onChange={(e) => setNewNodeData({...newNodeData, category: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  >
-                    <option value="custom">Custom</option>
-                    <option value="connectors">Connectors</option>
-                    <option value="logic">Logic</option>
-                    <option value="utility">Utility</option>
-                  </select>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Node Name
+                    </label>
+                    <input
+                      type="text"
+                      value={newNodeData.name}
+                      onChange={(e) => setNewNodeData({...newNodeData, name: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="Enter node name"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Description
+                    </label>
+                    <textarea
+                      value={newNodeData.description}
+                      onChange={(e) => setNewNodeData({...newNodeData, description: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      rows={3}
+                      placeholder="Describe what this node does"
+                    />
+                  </div>
                 </div>
                 
                 <div className="flex justify-end space-x-3">
@@ -518,27 +524,15 @@ export function NodePalette() {
                       setShowCreateModal(false);
                       setIsWorldIDVerified(false);
                       setError('');
-                      setNewNodeData({name: '', description: '', category: 'custom', parameters: []});
                     }}
                     className="px-6 py-3 text-sm font-semibold text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-all duration-200"
                   >
                     Cancel
                   </button>
                   <button
-                    onClick={() => {
-                      if (newNodeData.name.trim() && newNodeData.description.trim()) {
-                        console.log('Creating custom node:', newNodeData);
-                        // Here you would save the custom node
-                        setShowCreateModal(false);
-                        setIsWorldIDVerified(false);
-                        setError('');
-                        setNewNodeData({name: '', description: '', category: 'custom', parameters: []});
-                        alert('Custom node created successfully!');
-                      } else {
-                        alert('Please fill in all fields.');
-                      }
-                    }}
-                    className="px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl hover:shadow-lg transition-all duration-200"
+                    onClick={handleCreateNode}
+                    disabled={!newNodeData.name.trim() || !newNodeData.description.trim()}
+                    className="px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Create Node
                   </button>

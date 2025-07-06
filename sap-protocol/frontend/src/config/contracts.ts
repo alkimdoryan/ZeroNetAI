@@ -36,6 +36,59 @@ export const WORLDID_ACTION_SAVE_WORKFLOW = 'save-workflow';
 // WorldID Verification Levels
 export const WORLDID_VERIFICATION_LEVEL = 'device'; // 'orb' | 'device'
 
+// WorldID Bypass Configuration - Development Only
+export const WORLDID_BYPASS_CONFIG = {
+  // Enable bypass for all WorldID verifications
+  enabled: true,
+  
+  // Bypass specific flows
+  agentRegistration: true,
+  workflowSave: true,
+  customNodeCreation: true,
+  
+  // Mock verification data for bypass
+  mockProof: {
+    merkle_root: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+    nullifier_hash: '0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890',
+    proof: '0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+    verification_level: 'device'
+  }
+};
+
+// Helper function to check if WorldID bypass is enabled
+export const isWorldIDBypassEnabled = (action?: string): boolean => {
+  if (!WORLDID_BYPASS_CONFIG.enabled) return false;
+  
+  if (action === 'register-agent') {
+    return WORLDID_BYPASS_CONFIG.agentRegistration;
+  }
+  
+  if (action === 'save-workflow') {
+    return WORLDID_BYPASS_CONFIG.workflowSave;
+  }
+  
+  if (action === 'create-custom-node') {
+    return WORLDID_BYPASS_CONFIG.customNodeCreation;
+  }
+  
+  return true;
+};
+
+// Helper function to get mock WorldID verification result
+export const getMockWorldIDResult = () => ({
+  merkle_root: WORLDID_BYPASS_CONFIG.mockProof.merkle_root,
+  nullifier_hash: WORLDID_BYPASS_CONFIG.mockProof.nullifier_hash,
+  proof: WORLDID_BYPASS_CONFIG.mockProof.proof,
+  verification_level: WORLDID_BYPASS_CONFIG.mockProof.verification_level
+});
+
+// Helper function to simulate WorldID success
+export const simulateWorldIDSuccess = (onSuccess: (result: any) => void, delay: number = 1000) => {
+  setTimeout(() => {
+    onSuccess(getMockWorldIDResult());
+  }, delay);
+};
+
 // WorldID Error Messages
 export const WORLDID_ERRORS = {
   USER_CANCELLED: 'User cancelled verification',

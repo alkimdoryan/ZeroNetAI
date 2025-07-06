@@ -37,13 +37,16 @@ import {
   Filter,
   Command,
   Info,
-  X
+  X,
+  FileText
 } from 'lucide-react';
 import { IDKitWidget, type ISuccessResult, type IErrorState, VerificationLevel } from '@worldcoin/idkit';
 import { 
   WORLDID_APP_ID, 
   WORLDID_ACTION_SAVE_WORKFLOW,
-  getWorldIDErrorMessage 
+  getWorldIDErrorMessage,
+  isWorldIDBypassEnabled,
+  simulateWorldIDSuccess
 } from '../../config/contracts';
 
 // Layout algorithms
@@ -209,6 +212,7 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [isWorkflowSaveVerified, setIsWorkflowSaveVerified] = useState(false);
   const [saveError, setSaveError] = useState<string>('');
+  const [workflowName, setWorkflowName] = useState<string>('My Workflow');
   const [editingNode, setEditingNode] = useState<WorkflowNode | null>(null);
   const [showNodeEditor, setShowNodeEditor] = useState(false);
   
@@ -246,6 +250,24 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
   const handleWorkflowSaveError = (error: IErrorState) => {
     console.error('WorldID verification hatası:', error);
     setSaveError(getWorldIDErrorMessage(error.message || 'Bilinmeyen hata'));
+  };
+
+  // Save workflow function
+  const handleSaveWorkflow = () => {
+    if (!workflowName.trim()) {
+      setSaveError('Workflow name is required');
+      return;
+    }
+
+    // Check if WorldID bypass is enabled
+    if (isWorldIDBypassEnabled('save-workflow')) {
+      console.log('🚀 WorldID bypass enabled for workflow save');
+      simulateWorldIDSuccess(handleWorkflowSaveSuccess, 500);
+      return;
+    }
+
+    // Normal flow - show save modal for WorldID verification
+    setShowSaveModal(true);
   };
 
   // Node event handlers
@@ -607,6 +629,153 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
     }
   }, [reactFlowInstance]);
 
+  // Save modal content
+  const SaveModal = () => (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl">
+        <div className="flex justify-between items-center mb-6">
+          <h3 className="text-2xl font-bold text-gray-900">Save Workflow</h3>
+          <button
+            onClick={() => setShowSaveModal(false)}
+            className="text-gray-400 hover:text-gray-600 text-xl"
+          >
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+        
+        {/* Bypass Mode Active Indicator */}
+        {isWorldIDBypassEnabled('save-workflow') && (
+          <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <div className="flex items-center space-x-2">
+              <span className="text-yellow-600">🚀</span>
+              <p className="text-yellow-800 text-sm font-medium">
+                Bypass Mode Active - WorldID verification disabled
+              </p>
+            </div>
+          </div>
+        )}
+        
+        {!isWorkflowSaveVerified ? (
+          <div className="space-y-6">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <FileText className="w-8 h-8 text-white" />
+              </div>
+              <h4 className="text-lg font-semibold text-gray-900 mb-2">
+                {isWorldIDBypassEnabled('save-workflow') 
+                  ? 'Save Workflow (Bypass Mode)'
+                  : 'Identity Verification Required'
+                }
+              </h4>
+              <p className="text-gray-600 mb-6">
+                {isWorldIDBypassEnabled('save-workflow')
+                  ? 'WorldID verification is bypassed for development.'
+                  : 'You need to verify your identity with WorldID to save workflows.'
+                }
+              </p>
+            </div>
+            
+            {/* Error Display */}
+            {saveError && (
+              <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+                <div className="flex items-center space-x-2">
+                  <span className="text-red-500">⚠️</span>
+                  <p className="text-red-700 text-sm">{saveError}</p>
+                </div>
+              </div>
+            )}
+            
+                         {isWorldIDBypassEnabled('save-workflow') ? (
+               // Bypass Mode - Direct save button
+               <button
+                 onClick={() => handleWorkflowSaveSuccess({
+                   proof: 'bypass-proof',
+                   merkle_root: 'bypass-root',
+                   nullifier_hash: 'bypass-nullifier',
+                   verification_level: VerificationLevel.Device
+                 })}
+                 className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 text-white py-3 px-6 rounded-xl font-semibold hover:shadow-lg transition-all duration-200"
+               >
+                 Save Workflow (Bypass)
+               </button>
+            ) : (
+              // Normal WorldID flow
+              <IDKitWidget
+                app_id={WORLDID_APP_ID}
+                action={WORLDID_ACTION_SAVE_WORKFLOW}
+                verification_level={VerificationLevel.Device}
+                handleVerify={handleWorkflowSaveSuccess}
+                onSuccess={() => console.log('WorldID verification completed for workflow save')}
+                onError={handleWorkflowSaveError}
+              >
+                {({ open }: { open: () => void }) => (
+                  <button
+                    onClick={open}
+                    className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-6 rounded-xl font-semibold hover:shadow-lg transition-all duration-200"
+                  >
+                    Verify with WorldID
+                  </button>
+                )}
+              </IDKitWidget>
+            )}
+
+            {!isWorldIDBypassEnabled('save-workflow') && (
+              <div className="text-center mt-4">
+                <p className="text-xs text-gray-500">
+                  Scan the QR code with the WorldID app
+                </p>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="space-y-6">
+            <div className="text-center">
+              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-green-600 text-2xl">✓</span>
+              </div>
+              <p className="text-sm text-green-600 mb-6">Identity verification successful!</p>
+            </div>
+            
+            <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-gray-600">Total Nodes:</span>
+                <span className="font-semibold text-gray-900">{nodes.length}</span>
+              </div>
+              <div className="flex items-center justify-between text-sm mt-2">
+                <span className="text-gray-600">Connections:</span>
+                <span className="font-semibold text-gray-900">{edges.length}</span>
+              </div>
+            </div>
+            
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => {
+                  setShowSaveModal(false);
+                  setIsWorkflowSaveVerified(false);
+                  setSaveError('');
+                }}
+                className="px-6 py-3 text-sm font-semibold text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-all duration-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  onSave?.(nodes, edges);
+                  setShowSaveModal(false);
+                  setIsWorkflowSaveVerified(false);
+                  alert('Workflow saved successfully!');
+                }}
+                className="px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl hover:shadow-lg transition-all duration-200"
+              >
+                Save Workflow
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
   return (
     <div 
       ref={containerRef}
@@ -634,6 +803,15 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
 
           {/* Right Section - Actions */}
           <div className="flex items-center space-x-2">
+            {/* Bypass Mode Indicator */}
+            {isWorldIDBypassEnabled('save-workflow') && (
+              <div className="flex items-center px-3 py-1 bg-yellow-100 border border-yellow-300 rounded-lg">
+                <span className="text-yellow-700 text-xs font-medium">
+                  🚀 Bypass Mode
+                </span>
+              </div>
+            )}
+            
             <button
               onClick={() => setShowShortcuts(!showShortcuts)}
               className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
@@ -645,7 +823,7 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
             <div className="w-px h-6 bg-gray-300" />
             
             <button
-              onClick={() => setShowSaveModal(true)}
+              onClick={handleSaveWorkflow}
               className="px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2"
             >
               <Save className="w-4 h-4" />
@@ -910,115 +1088,7 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
       )}
 
       {/* Save Workflow Modal */}
-      {showSaveModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-2xl font-bold text-gray-900">Save Workflow</h3>
-              <button
-                onClick={() => setShowSaveModal(false)}
-                className="text-gray-400 hover:text-gray-600 text-xl"
-              >
-                ✕
-              </button>
-            </div>
-            
-            {!isWorkflowSaveVerified ? (
-              <div className="space-y-6">
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Save className="w-8 h-8 text-white" />
-                  </div>
-                  <h4 className="text-lg font-semibold text-gray-900 mb-2">
-                    Identity Verification Required
-                  </h4>
-                  <p className="text-gray-600 mb-6">
-                    You need to verify your identity with WorldID to save workflows.
-                  </p>
-                </div>
-                
-                {/* Error Display */}
-                {saveError && (
-                  <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
-                    <div className="flex items-center space-x-2">
-                      <span className="text-red-500">⚠️</span>
-                      <p className="text-red-700 text-sm">{saveError}</p>
-                    </div>
-                  </div>
-                )}
-
-                <IDKitWidget
-                  app_id={WORLDID_APP_ID}
-                  action={WORLDID_ACTION_SAVE_WORKFLOW}
-                  verification_level={VerificationLevel.Device}
-                  handleVerify={handleWorkflowSaveSuccess}
-                  onSuccess={() => console.log('WorldID verification completed for workflow save')}
-                  onError={handleWorkflowSaveError}
-                >
-                  {({ open }) => (
-                    <button
-                      onClick={open}
-                      className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-6 rounded-xl font-semibold hover:shadow-lg transition-all duration-200"
-                    >
-                      Verify with WorldID
-                    </button>
-                  )}
-                </IDKitWidget>
-
-                <div className="text-center mt-4">
-                  <p className="text-xs text-gray-500">
-                    Scan the QR code with the WorldID app
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-6">
-                <div className="text-center">
-                  <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-green-600 text-2xl">✓</span>
-                  </div>
-                  <p className="text-sm text-green-600 mb-6">Identity verification successful!</p>
-                </div>
-                
-                <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">Total Nodes:</span>
-                    <span className="font-semibold text-gray-900">{nodes.length}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm mt-2">
-                    <span className="text-gray-600">Connections:</span>
-                    <span className="font-semibold text-gray-900">{edges.length}</span>
-                  </div>
-                </div>
-                
-                <div className="flex justify-end space-x-3">
-                  <button
-                    onClick={() => {
-                      setShowSaveModal(false);
-                      setIsWorkflowSaveVerified(false);
-                      setSaveError('');
-                    }}
-                    className="px-6 py-3 text-sm font-semibold text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-all duration-200"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={() => {
-                      onSave?.(nodes, edges);
-                      setShowSaveModal(false);
-                      setIsWorkflowSaveVerified(false);
-                      alert('Workflow saved successfully!');
-                    }}
-                    className="px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl hover:shadow-lg transition-all duration-200"
-                  >
-                    Save Workflow
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+      {showSaveModal && <SaveModal />}
 
       {/* Node Editor Modal */}
       {showNodeEditor && editingNode && (
