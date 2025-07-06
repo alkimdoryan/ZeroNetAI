@@ -1,10 +1,11 @@
 import { useAccount } from 'wagmi';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { storageService, type Agent } from '../services/storageService';
 
 interface AgentData {
   name: string;
   description: string;
-  zkVMEndpoint: string;
+  specialties: string[];
   owner: string;
   registeredAt: number;
   taskCount: number;
@@ -17,21 +18,52 @@ interface AgentData {
 export function AgentProfile() {
   const { address } = useAccount();
   const [isEditing, setIsEditing] = useState(false);
+  const [savedAgents, setSavedAgents] = useState<Agent[]>([]);
+  const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
 
-  // Mock data for now - replace with actual contract calls
-  const mockAgentData: AgentData = {
-    name: 'Sentiment Analysis Bot',
-    description:
-      'AI agent that performs Twitter sentiment analysis. Provides positive/negative/neutral sentiment scores.',
-    zkVMEndpoint: 'https://zkvm-api.example.com/sentiment',
-    owner: address || '0x0000000000000000000000000000000000000000',
-    registeredAt: Date.now() - 86400000 * 7, // 7 days ago
-    taskCount: 15,
-    completedTasks: 12,
-    score: 4.2,
-    totalEarned: BigInt('24500000000000000000'), // 24.5 tokens
-    isActive: true,
+  // Load saved agents on component mount
+  useEffect(() => {
+    const agents = storageService.getAllAgents();
+    setSavedAgents(agents);
+    
+    // Select the first agent if available
+    if (agents.length > 0) {
+      setSelectedAgent(agents[0]);
+    }
+  }, []);
+
+  // Convert Agent to AgentData format for display
+  const getDisplayData = (agent: Agent | null): AgentData => {
+    if (!agent) {
+      return {
+        name: 'No Agent Found',
+        description: 'No agents have been registered yet. Please register an agent first.',
+        specialties: [],
+        owner: address || '0x0000000000000000000000000000000000000000',
+        registeredAt: Date.now(),
+        taskCount: 0,
+        completedTasks: 0,
+        score: 0,
+        totalEarned: BigInt('0'),
+        isActive: false,
+      };
+    }
+
+    return {
+      name: agent.name,
+      description: agent.description,
+      specialties: agent.specialties || [],
+      owner: agent.walletAddress || address || '0x0000000000000000000000000000000000000000',
+      registeredAt: new Date(agent.createdAt).getTime(),
+      taskCount: 0, // These would come from task completion tracking
+      completedTasks: 0,
+      score: 0,
+      totalEarned: BigInt('0'),
+      isActive: true,
+    };
   };
+
+  const mockAgentData = getDisplayData(selectedAgent);
 
   const completionRate =
     mockAgentData.taskCount > 0
@@ -66,6 +98,11 @@ export function AgentProfile() {
               <p className="text-lg text-gray-600">
                 View your agent information and performance metrics
               </p>
+              {savedAgents.length > 0 && (
+                <p className="text-sm text-green-600 mt-1">
+                  ✅ {savedAgents.length} agent(s) found in storage
+                </p>
+              )}
             </div>
           </div>
           <div className="flex space-x-3">
@@ -85,6 +122,27 @@ export function AgentProfile() {
         </div>
       </div>
 
+      {/* Agent Selector */}
+      {savedAgents.length > 1 && (
+        <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/20">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Select Agent</h3>
+          <select
+            value={selectedAgent?.id || ''}
+            onChange={(e) => {
+              const agent = savedAgents.find(a => a.id === e.target.value);
+              setSelectedAgent(agent || null);
+            }}
+            className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-white/20 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
+          >
+            {savedAgents.map((agent) => (
+              <option key={agent.id} value={agent.id}>
+                {agent.name} (ID: {agent.id.slice(-8)})
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
       {/* Main Content */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
         {/* Agent Info */}
@@ -92,6 +150,11 @@ export function AgentProfile() {
           <div className="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8">
             <h3 className="text-xl font-semibold text-gray-900 mb-6">
               Agent Information
+              {selectedAgent && (
+                <span className="text-sm font-normal text-gray-600 ml-2">
+                  (ID: {selectedAgent.id})
+                </span>
+              )}
             </h3>
             <div className="space-y-6">
               <div>
@@ -124,18 +187,26 @@ export function AgentProfile() {
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  zkVM Endpoint
+                  Specialties
                 </label>
                 {isEditing ? (
                   <input
-                    type="url"
-                    defaultValue={mockAgentData.zkVMEndpoint}
+                    type="text"
+                    defaultValue={mockAgentData.specialties.join(', ')}
                     className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-white/20 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
                   />
                 ) : (
-                  <p className="text-gray-900 break-all font-mono text-sm bg-gray-50/80 backdrop-blur-sm p-3 rounded-xl">
-                    {mockAgentData.zkVMEndpoint}
-                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {mockAgentData.specialties.length > 0 ? (
+                      mockAgentData.specialties.map((specialty, index) => (
+                        <span key={index} className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+                          {specialty}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="text-gray-500 italic">No specialties defined</span>
+                    )}
+                  </div>
                 )}
               </div>
               <div>

@@ -9,6 +9,7 @@ import {
   isWorldIDBypassEnabled,
   simulateWorldIDSuccess
 } from '../config/contracts';
+import { storageService } from '../services/storageService';
 
 export function AgentRegistration() {
   const { address } = useAccount();
@@ -17,7 +18,7 @@ export function AgentRegistration() {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    zkVMEndpoint: '',
+    specialties: [] as string[],
   });
 
   const handleWorldIDSuccess = (result: ISuccessResult) => {
@@ -28,26 +29,40 @@ export function AgentRegistration() {
     setError('');
     setIsPending(true);
 
-    // Here we would call the smart contract
-    // writeContract({
-    //   address: getContractAddress(chainId, 'agentRegistry'),
-    //   abi: agentRegistryABI,
-    //   functionName: 'registerAgent',
-    //   args: [
-    //     formData.name,
-    //     formData.description,
-    //     formData.zkVMEndpoint,
-    //     result.proof,
-    //     result.merkle_root,
-    //     result.nullifier_hash
-    //   ]
-    // })
-
-    // Simulate successful registration for demo
+    // Save agent to localStorage
     setTimeout(() => {
-      setIsPending(false);
-      alert(`Agent "${formData.name}" başarıyla kaydedildi!`);
-    }, 2000);
+      try {
+        const agentId = `agent_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        
+        storageService.saveAgent({
+          id: agentId,
+          name: formData.name,
+          description: formData.description,
+          specialties: formData.specialties,
+          walletAddress: address || '',
+          createdAt: new Date().toISOString(),
+          worldIdVerified: true,
+          worldIdProof: result.proof,
+          merkleRoot: result.merkle_root,
+          nullifierHash: result.nullifier_hash,
+          verificationLevel: VerificationLevel.Orb,
+        });
+
+        setIsPending(false);
+        alert(`Agent "${formData.name}" başarıyla kaydedildi!\nAgent ID: ${agentId}`);
+        
+        // Reset form
+        setFormData({
+          name: '',
+          description: '',
+          specialties: [],
+        });
+      } catch (error) {
+        console.error('Agent kaydetme hatası:', error);
+        setError('Agent kaydedilirken bir hata oluştu.');
+        setIsPending(false);
+      }
+    }, 1000);
   };
 
   const handleWorldIDError = (error: IErrorState) => {
@@ -84,7 +99,7 @@ export function AgentRegistration() {
     // Normal form validation will be done here
   };
 
-  const isFormValid = formData.name.trim() && formData.description.trim() && formData.zkVMEndpoint.trim();
+  const isFormValid = formData.name.trim() && formData.description.trim();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4">
@@ -160,17 +175,16 @@ export function AgentRegistration() {
                 </div>
 
                 <div>
-                  <label htmlFor="zkVMEndpoint" className="block text-sm font-semibold text-gray-700 mb-2">
-                    zkVM Endpoint
+                  <label htmlFor="specialties" className="block text-sm font-semibold text-gray-700 mb-2">
+                    Specialties
                   </label>
                   <input
-                    type="url"
-                    id="zkVMEndpoint"
-                    value={formData.zkVMEndpoint}
-                    onChange={(e) => setFormData({...formData, zkVMEndpoint: e.target.value})}
+                    type="text"
+                    id="specialties"
+                    value={formData.specialties.join(', ')}
+                    onChange={(e) => setFormData({...formData, specialties: e.target.value.split(',').map(s => s.trim()).filter(s => s)})}
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                    placeholder="https://your-zkvm-endpoint.com/api"
-                    required
+                    placeholder="Enter specialties separated by commas (e.g., NLP, Computer Vision, Trading)"
                   />
                 </div>
               </div>

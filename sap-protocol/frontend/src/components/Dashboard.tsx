@@ -6,6 +6,7 @@ import { TaskBoard } from './TaskBoard';
 import { AgentProfile } from './AgentProfile';
 import { WorkflowDesignerPro } from './workflow/WorkflowDesignerPro';
 import { LLMChatbot } from './LLMChatbot';
+import { storageService } from '../services/storageService';
 
 export function Dashboard() {
   const { isConnected } = useAccount();
@@ -20,6 +21,24 @@ export function Dashboard() {
     { id: 'register', label: 'Agent Registration', icon: '👨‍💼' },
     { id: 'profile', label: 'Profile', icon: '👤' },
   ];
+
+  // Handle workflow save with storage
+  const handleWorkflowSave = (nodes: any[], edges: any[]) => {
+    try {
+      const savedWorkflow = storageService.saveWorkflow({
+        name: `Workflow_${new Date().toISOString().split('T')[0]}`,
+        description: `Auto-saved workflow from Dashboard on ${new Date().toLocaleDateString()}`,
+        nodes: nodes,
+        edges: edges,
+      });
+      
+      console.log('✅ Workflow saved from Dashboard:', savedWorkflow);
+      alert(`Workflow başarıyla kaydedildi!\nWorkflow ID: ${savedWorkflow.id}`);
+    } catch (error) {
+      console.error('Dashboard workflow save error:', error);
+      alert('Workflow kaydedilirken bir hata oluştu.');
+    }
+  };
 
   return (
     <div className="min-h-screen">
@@ -108,9 +127,7 @@ export function Dashboard() {
                 <WorkflowDesignerPro 
                   initialNodes={[]}
                   initialEdges={[]}
-                  onSave={(nodes, edges) => {
-                    console.log('Workflow saved:', { nodes, edges });
-                  }}
+                  onSave={handleWorkflowSave}
                   onLoad={() => ({ nodes: [], edges: [] })}
                 />
               )}

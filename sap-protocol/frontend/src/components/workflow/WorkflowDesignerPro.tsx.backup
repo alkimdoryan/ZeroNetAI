@@ -49,6 +49,7 @@ import {
   simulateWorldIDSuccess
 } from '../../config/contracts';
 import { storageService } from '../../services/storageService';
+import { workflowExecutionService, type WorkflowExecutionRequest, type LLMConfig } from '../../services/workflowExecutionService';
 
 // Layout algorithms
 import dagre from 'dagre';
@@ -58,7 +59,7 @@ import { hierarchy, tree } from 'd3-hierarchy';
 interface WorkflowNode extends Node {
   data: {
     label: string;
-    category: 'trigger' | 'agent' | 'condition' | 'connector' | 'logic' | 'utility' | 'http-request' | 'database-query' | 'email-send' | 'notification' | 'loop' | 'delay' | 'transform' | 'error-handler' | 'custom-function' | 'custom';
+    category: 'trigger' | 'agent' | 'condition' | 'connector' | 'logic' | 'utility' | 'http-request' | 'database-query' | 'email-send' | 'notification' | 'loop' | 'delay' | 'transform' | 'error-handler' | 'custom-function' | 'llm' | 'custom';
     status?: 'idle' | 'running' | 'success' | 'error' | 'warning';
     description?: string;
     icon?: React.ReactNode;
@@ -216,6 +217,9 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
   const [workflowName, setWorkflowName] = useState<string>('My Workflow');
   const [editingNode, setEditingNode] = useState<WorkflowNode | null>(null);
   const [showNodeEditor, setShowNodeEditor] = useState(false);
+  const [isExecuting, setIsExecuting] = useState(false);
+  const [showExecutionModal, setShowExecutionModal] = useState(false);
+  const [executionResult, setExecutionResult] = useState<any>(null);
   
   const reactFlowInstance = useReactFlow();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -444,6 +448,7 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
       'transform': 'Transform',
       'error-handler': 'Error Handler',
       'custom-function': 'Custom Function',
+      'llm': 'LLM Task',
     };
     return labels[type] || 'New Node';
   };
@@ -463,6 +468,7 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
       'transform': 'transform',
       'error-handler': 'error-handler',
       'custom-function': 'custom-function',
+      'llm': 'llm',
     };
     return categories[type] || 'utility';
   };
@@ -482,6 +488,7 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
       'transform': 'Data transformation',
       'error-handler': 'Error management',
       'custom-function': 'Runs custom code',
+      'llm': 'Execute LLM/AI task with local API',
     };
     return descriptions[type] || 'New node';
   };
@@ -501,6 +508,7 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
       'transform': '🔄',
       'error-handler': '⚠️',
       'custom-function': '🔧',
+      'llm': '🧠',
     };
     return icons[type] || '📦';
   };
@@ -803,6 +811,198 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
     </div>
   );
 
+  // Execute workflow functionality
+  const executeWorkflow = async () => {
+    if (nodes.length === 0) {
+      alert('Workflow boş! Önce node ekleyin.');
+      return;
+    }
+
+    setIsExecuting(true);
+    setExecutionResult(null);
+
+    try {
+      // Create workflow data
+      const workflowData = {
+        id: `workflow_${Date.now()}`,
+        name: 'Test Workflow',
+        description: 'Executed from WorkflowDesigner',
+        nodes: nodes.map(node => ({
+          id: node.id,
+          type: node.data.category,
+          name: node.data.label,
+          parameters: node.data.config || {},
+        })),
+        edges: edges.map(edge => ({
+          source: edge.source,
+          target: edge.target,
+        })),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        worldIdVerified: false,
+      };
+
+      // Save to storage for execution
+      storageService.saveWorkflow(workflowData);
+
+      // Get LLM config from localStorage or environment
+      const llmConfig: LLMConfig = {
+        endpoint: localStorage.getItem('llmEndpoint') || 'http://localhost:11434',
+        apiType: (localStorage.getItem('llmApiType') as any) || 'ollama',
+        model: localStorage.getItem('llmModel') || 'llama3.2:latest',
+        temperature: 0.7,
+        maxTokens: 1000,
+      };
+
+      // Execute workflow
+      const executionRequest: WorkflowExecutionRequest = {
+        workflowId: workflowData.id,
+        initialData: {
+          message: 'Test workflow execution',
+          timestamp: new Date().toISOString(),
+        },
+        llmConfig,
+      };
+
+      const result = await workflowExecutionService.executeWorkflow(executionRequest);
+      setExecutionResult(result);
+      setShowExecutionModal(true);
+
+    } catch (error) {
+      console.error('Workflow execution failed:', error);
+      alert(`Workflow execution failed: ${error instanceof Error ? error.message : String(error)}`);
+    } finally {
+      setIsExecuting(false);
+    }
+  };
+
+  // Execution Results Modal
+  const ExecutionModal = () => (
+    showExecutionModal && executionResult && (
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+        <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full mx-4 max-h-[80vh] overflow-hidden">
+          <div className="flex items-center justify-between p-6 border-b border-gray-200">
+            <h3 className="text-xl font-semibold text-gray-900">
+              Workflow Execution Results
+            </h3>
+            <button
+              onClick={() => setShowExecutionModal(false)}
+              className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              <X size={20} />
+            </button>
+          </div>
+
+          <div className="p-6 overflow-y-auto max-h-[60vh]">
+            <div className="space-y-6">
+              {/* Execution Summary */}
+              <div className="bg-gray-50 rounded-xl p-4">
+                <h4 className="font-semibold text-gray-900 mb-3">Execution Summary</h4>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-gray-600">Status:</span>
+                    <span className={`ml-2 px-2 py-1 rounded-lg text-xs font-medium ${
+                      executionResult.status === 'completed' ? 'bg-green-100 text-green-800' :
+                      executionResult.status === 'failed' ? 'bg-red-100 text-red-800' :
+                      'bg-blue-100 text-blue-800'
+                    }`}>
+                      {executionResult.status}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Execution ID:</span>
+                    <span className="ml-2 font-mono text-xs">{executionResult.id}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Started:</span>
+                    <span className="ml-2">{new Date(executionResult.startedAt).toLocaleString('tr-TR')}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Finished:</span>
+                    <span className="ml-2">
+                      {executionResult.finishedAt ? new Date(executionResult.finishedAt).toLocaleString('tr-TR') : 'Running...'}
+                    </span>
+                  </div>
+                </div>
+                {executionResult.error && (
+                  <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <h5 className="font-medium text-red-800 mb-1">Error:</h5>
+                    <p className="text-red-700 text-sm">{executionResult.error}</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Node Results */}
+              {executionResult.nodeResults && Object.keys(executionResult.nodeResults).length > 0 && (
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-3">Node Execution Results</h4>
+                  <div className="space-y-3">
+                    {Object.entries(executionResult.nodeResults).map(([nodeId, result]: [string, any]) => (
+                      <div key={nodeId} className="border border-gray-200 rounded-xl p-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center space-x-2">
+                            <span className="font-medium text-gray-900">
+                              {getNodeIcon(result.nodeType)} {getNodeLabel(result.nodeType)}
+                            </span>
+                            <span className="text-xs text-gray-500 font-mono">({nodeId})</span>
+                          </div>
+                          <span className={`px-2 py-1 rounded-lg text-xs font-medium ${
+                            result.status === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                          }`}>
+                            {result.status}
+                          </span>
+                        </div>
+                        
+                        <div className="text-sm text-gray-600 mb-2">
+                          Execution time: {result.executionTime}ms
+                        </div>
+
+                        {result.output && (
+                          <div className="mt-3">
+                            <h6 className="font-medium text-gray-700 mb-1">Output:</h6>
+                            <pre className="bg-gray-50 p-3 rounded-lg text-xs overflow-x-auto">
+                              {typeof result.output === 'string' ? result.output : JSON.stringify(result.output, null, 2)}
+                            </pre>
+                          </div>
+                        )}
+
+                        {result.error && (
+                          <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                            <h6 className="font-medium text-red-800 mb-1">Error:</h6>
+                            <p className="text-red-700 text-sm">{result.error}</p>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Final Results */}
+              {executionResult.results && (
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-3">Final Results</h4>
+                  <pre className="bg-gray-50 p-4 rounded-xl text-sm overflow-x-auto">
+                    {JSON.stringify(executionResult.results, null, 2)}
+                  </pre>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="flex justify-end p-6 border-t border-gray-200">
+            <button
+              onClick={() => setShowExecutionModal(false)}
+              className="px-6 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  );
+
   return (
     <div 
       ref={containerRef}
@@ -856,6 +1056,31 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
               <Save className="w-4 h-4" />
               <span>Save</span>
             </button>
+
+            {/* Execute Workflow */}
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={executeWorkflow}
+                disabled={isExecuting || nodes.length === 0}
+                className={`flex items-center space-x-2 px-4 py-2 rounded-xl font-medium ${createTransition('all')} ${
+                  isExecuting || nodes.length === 0
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:shadow-lg'
+                }`}
+              >
+                {isExecuting ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
+                    <span>Executing...</span>
+                  </>
+                ) : (
+                  <>
+                    <Play className="w-4 h-4" />
+                    <span>Execute</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -910,7 +1135,7 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
                           </button>
                         </div>
                       </div>
-                      
+
                       {/* Layer List */}
                       <div className="space-y-2 max-h-32 overflow-y-auto">
                         {layers.map(layer => (
@@ -1117,736 +1342,8 @@ function WorkflowDesignerProComponent({ initialNodes = [], initialEdges = [], on
       {/* Save Workflow Modal */}
       {showSaveModal && <SaveModal />}
 
-      {/* Node Editor Modal */}
-      {showNodeEditor && editingNode && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-bold text-gray-900">
-                  Edit Node: {editingNode.data.label}
-                </h2>
-                <button
-                  onClick={() => setShowNodeEditor(false)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <X className="w-6 h-6" />
-                </button>
-              </div>
-
-              <div className="space-y-6">
-                {/* Basic Settings */}
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Basic Settings</h3>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Node Name
-                      </label>
-                      <input
-                        type="text"
-                        value={editingNode.data.label}
-                        onChange={(e) => setEditingNode({
-                          ...editingNode,
-                          data: { ...editingNode.data, label: e.target.value }
-                        })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Description
-                      </label>
-                      <textarea
-                        value={editingNode.data.description || ''}
-                        onChange={(e) => setEditingNode({
-                          ...editingNode,
-                          data: { ...editingNode.data, description: e.target.value }
-                        })}
-                        rows={3}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Layer
-                      </label>
-                      <select
-                        value={editingNode.data.layer || 'default'}
-                        onChange={(e) => setEditingNode({
-                          ...editingNode,
-                          data: { ...editingNode.data, layer: e.target.value }
-                        })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      >
-                        <option value="default">Default</option>
-                        <option value="triggers">Triggers</option>
-                        <option value="agents">Agents</option>
-                        <option value="logic">Logic</option>
-                        <option value="connectors">Connectors</option>
-                        <option value="utility">Utility</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Node-specific Configuration */}
-                {editingNode.data.category === 'agent' && (
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Agent Settings</h3>
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          BitNet Prompt
-                        </label>
-                        <textarea
-                          value={editingNode.data.config?.prompt || 'You are a helpful AI assistant. Your task:'}
-                          onChange={(e) => setEditingNode({
-                            ...editingNode,
-                            data: { 
-                              ...editingNode.data, 
-                              config: { ...editingNode.data.config, prompt: e.target.value }
-                            }
-                          })}
-                          rows={4}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="Describe how the agent should behave..."
-                        />
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Maksimum Token
-                        </label>
-                        <input
-                          type="number"
-                          value={editingNode.data.config?.maxTokens || 1000}
-                          onChange={(e) => setEditingNode({
-                            ...editingNode,
-                            data: { 
-                              ...editingNode.data, 
-                              config: { ...editingNode.data.config, maxTokens: parseInt(e.target.value) }
-                            }
-                          })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Sıcaklık (Temperature)
-                        </label>
-                        <input
-                          type="number"
-                          min="0"
-                          max="1"
-                          step="0.1"
-                          value={editingNode.data.config?.temperature || 0.7}
-                          onChange={(e) => setEditingNode({
-                            ...editingNode,
-                            data: { 
-                              ...editingNode.data, 
-                              config: { ...editingNode.data.config, temperature: parseFloat(e.target.value) }
-                            }
-                          })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {editingNode.data.category === 'http-request' && (
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">HTTP Request Settings</h3>
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          URL <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="url"
-                          value={editingNode.data.config?.url || 'https://api.example.com/v1/resource'}
-                          onChange={(e) => setEditingNode({
-                            ...editingNode,
-                            data: { 
-                              ...editingNode.data, 
-                              config: { ...editingNode.data.config, url: e.target.value }
-                            }
-                          })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="https://api.example.com/v1/resource"
-                        />
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          HTTP Method <span className="text-red-500">*</span>
-                        </label>
-                        <select
-                          value={editingNode.data.config?.method || 'GET'}
-                          onChange={(e) => setEditingNode({
-                            ...editingNode,
-                            data: { 
-                              ...editingNode.data, 
-                              config: { ...editingNode.data.config, method: e.target.value }
-                            }
-                          })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        >
-                          <option value="GET">GET</option>
-                          <option value="POST">POST</option>
-                          <option value="PUT">PUT</option>
-                          <option value="DELETE">DELETE</option>
-                          <option value="PATCH">PATCH</option>
-                        </select>
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Headers (JSON)
-                        </label>
-                        <textarea
-                          value={editingNode.data.config?.headers || '{"Content-Type": "application/json"}'}
-                          onChange={(e) => setEditingNode({
-                            ...editingNode,
-                            data: { 
-                              ...editingNode.data, 
-                              config: { ...editingNode.data.config, headers: e.target.value }
-                            }
-                          })}
-                          rows={3}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder='{"Authorization": "Bearer token", "Content-Type": "application/json"}'
-                        />
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Body (JSON)
-                        </label>
-                        <textarea
-                          value={editingNode.data.config?.body || '{"name": "{{name}}", "email": "{{email}}"}'}
-                          onChange={(e) => setEditingNode({
-                            ...editingNode,
-                            data: { 
-                              ...editingNode.data, 
-                              config: { ...editingNode.data.config, body: e.target.value }
-                            }
-                          })}
-                          rows={4}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder='{"name": "{{name}}", "email": "{{email}}"}'
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {editingNode.data.category === 'database-query' && (
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Database Query Settings</h3>
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Connection ID <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          value={editingNode.data.config?.connectionId || 'mysql-main'}
-                          onChange={(e) => setEditingNode({
-                            ...editingNode,
-                            data: { 
-                              ...editingNode.data, 
-                              config: { ...editingNode.data.config, connectionId: e.target.value }
-                            }
-                          })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="mysql-main"
-                        />
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          SQL Query <span className="text-red-500">*</span>
-                        </label>
-                        <textarea
-                          value={editingNode.data.config?.query || 'SELECT * FROM orders WHERE status = ?'}
-                          onChange={(e) => setEditingNode({
-                            ...editingNode,
-                            data: { 
-                              ...editingNode.data, 
-                              config: { ...editingNode.data.config, query: e.target.value }
-                            }
-                          })}
-                          rows={4}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="SELECT * FROM orders WHERE status = ?"
-                        />
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Parameters (JSON)
-                        </label>
-                        <textarea
-                          value={editingNode.data.config?.parameters || '[{"name": "status", "value": "pending"}]'}
-                          onChange={(e) => setEditingNode({
-                            ...editingNode,
-                            data: { 
-                              ...editingNode.data, 
-                              config: { ...editingNode.data.config, parameters: e.target.value }
-                            }
-                          })}
-                          rows={3}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder='[{"name": "status", "value": "pending"}]'
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {editingNode.data.category === 'email-send' && (
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Email Sending Settings</h3>
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Recipients <span className="text-red-500">*</span>
-                        </label>
-                        <textarea
-                          value={editingNode.data.config?.to || '["user@example.com"]'}
-                          onChange={(e) => setEditingNode({
-                            ...editingNode,
-                            data: { 
-                              ...editingNode.data, 
-                              config: { ...editingNode.data.config, to: e.target.value }
-                            }
-                          })}
-                          rows={2}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder='["user@example.com", "admin@example.com"]'
-                        />
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Subject <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          value={editingNode.data.config?.subject || 'Order Confirmation'}
-                          onChange={(e) => setEditingNode({
-                            ...editingNode,
-                            data: { 
-                              ...editingNode.data, 
-                              config: { ...editingNode.data.config, subject: e.target.value }
-                            }
-                          })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="Order Confirmation"
-                        />
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Content <span className="text-red-500">*</span>
-                        </label>
-                        <textarea
-                          value={editingNode.data.config?.body || 'Dear {{name}},\n\nYour order has been successfully received.\n\nThank you.'}
-                          onChange={(e) => setEditingNode({
-                            ...editingNode,
-                            data: { 
-                              ...editingNode.data, 
-                              config: { ...editingNode.data.config, body: e.target.value }
-                            }
-                          })}
-                          rows={6}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="Dear {{name}},\n\nYour order has been successfully received.\n\nThank you."
-                        />
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Attachments (JSON)
-                        </label>
-                        <textarea
-                          value={editingNode.data.config?.attachments || '[]'}
-                          onChange={(e) => setEditingNode({
-                            ...editingNode,
-                            data: { 
-                              ...editingNode.data, 
-                              config: { ...editingNode.data.config, attachments: e.target.value }
-                            }
-                          })}
-                          rows={2}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder='[{"filename": "invoice.pdf", "path": "/files/invoice.pdf"}]'
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {editingNode.data.category === 'condition' && (
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Condition Settings</h3>
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Condition Expression <span className="text-red-500">*</span>
-                        </label>
-                        <textarea
-                          value={editingNode.data.config?.expression || 'data.value > 100'}
-                          onChange={(e) => setEditingNode({
-                            ...editingNode,
-                            data: { 
-                              ...editingNode.data, 
-                              config: { ...editingNode.data.config, expression: e.target.value }
-                            }
-                          })}
-                          rows={4}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="data.value > 100 && data.status === 'active'"
-                        />
-                      </div>
-                      <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
-                        <p><strong>Example usage:</strong></p>
-                        <p>• response.status === 200</p>
-                        <p>• data.amount &gt; 1000</p>
-                        <p>• user.role === 'admin'</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {editingNode.data.category === 'loop' && (
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Loop Settings</h3>
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Collection <span className="text-red-500">*</span>
-                        </label>
-                        <textarea
-                          value={editingNode.data.config?.collection || '["user1", "user2", "user3"]'}
-                          onChange={(e) => setEditingNode({
-                            ...editingNode,
-                            data: { 
-                              ...editingNode.data, 
-                              config: { ...editingNode.data.config, collection: e.target.value }
-                            }
-                          })}
-                          rows={3}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder='["user1", "user2", "user3"]'
-                        />
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Loop Type <span className="text-red-500">*</span>
-                        </label>
-                        <select
-                          value={editingNode.data.config?.loopType || 'forEach'}
-                          onChange={(e) => setEditingNode({
-                            ...editingNode,
-                            data: { 
-                              ...editingNode.data, 
-                              config: { ...editingNode.data.config, loopType: e.target.value }
-                            }
-                          })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        >
-                          <option value="forEach">For Each</option>
-                          <option value="while">While</option>
-                          <option value="parallel">Parallel</option>
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {editingNode.data.category === 'delay' && (
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Delay Settings</h3>
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Duration (seconds) <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="number"
-                          value={editingNode.data.config?.duration || 5}
-                          onChange={(e) => setEditingNode({
-                            ...editingNode,
-                            data: { 
-                              ...editingNode.data, 
-                              config: { ...editingNode.data.config, duration: parseInt(e.target.value) }
-                            }
-                          })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="5"
-                        />
-                      </div>
-                      <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
-                        <p><strong>Usage:</strong> Waits for 5 seconds between two API calls.</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {editingNode.data.category === 'transform' && (
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Transform Settings</h3>
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Input Path <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          value={editingNode.data.config?.inputPath || 'data.user'}
-                          onChange={(e) => setEditingNode({
-                            ...editingNode,
-                            data: { 
-                              ...editingNode.data, 
-                              config: { ...editingNode.data.config, inputPath: e.target.value }
-                            }
-                          })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="data.user"
-                        />
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Mapping Script <span className="text-red-500">*</span>
-                        </label>
-                        <textarea
-                          value={editingNode.data.config?.mappingScript || 'return { fullName: user.firstName + " " + user.lastName }'}
-                          onChange={(e) => setEditingNode({
-                            ...editingNode,
-                            data: { 
-                              ...editingNode.data, 
-                              config: { ...editingNode.data.config, mappingScript: e.target.value }
-                            }
-                          })}
-                          rows={4}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="return { fullName: user.firstName + ' ' + user.lastName }"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {editingNode.data.category === 'error-handler' && (
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Error Management Settings</h3>
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Target Node ID <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          value={editingNode.data.config?.targetNodeId || 'node_123'}
-                          onChange={(e) => setEditingNode({
-                            ...editingNode,
-                            data: { 
-                              ...editingNode.data, 
-                              config: { ...editingNode.data.config, targetNodeId: e.target.value }
-                            }
-                          })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="node_123"
-                        />
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Retry Count
-                        </label>
-                        <input
-                          type="number"
-                          value={editingNode.data.config?.retryCount || 3}
-                          onChange={(e) => setEditingNode({
-                            ...editingNode,
-                            data: { 
-                              ...editingNode.data, 
-                              config: { ...editingNode.data.config, retryCount: parseInt(e.target.value) }
-                            }
-                          })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="3"
-                        />
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Fallback Node ID
-                        </label>
-                        <input
-                          type="text"
-                          value={editingNode.data.config?.fallbackNodeId || ''}
-                          onChange={(e) => setEditingNode({
-                            ...editingNode,
-                            data: { 
-                              ...editingNode.data, 
-                              config: { ...editingNode.data.config, fallbackNodeId: e.target.value }
-                            }
-                          })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="node_fallback"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {editingNode.data.category === 'custom-function' && (
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Custom Function Settings</h3>
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          JavaScript Code <span className="text-red-500">*</span>
-                        </label>
-                        <textarea
-                          value={editingNode.data.config?.code || 'function execute(data) {\n  // Write your code here\n  return data;\n}'}
-                          onChange={(e) => setEditingNode({
-                            ...editingNode,
-                            data: { 
-                              ...editingNode.data, 
-                              config: { ...editingNode.data.config, code: e.target.value }
-                            }
-                          })}
-                          rows={8}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm"
-                          placeholder="function execute(data) {\n  // Write your code here\n  return data;\n}"
-                        />
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Input Schema (JSON Schema)
-                        </label>
-                        <textarea
-                          value={editingNode.data.config?.inputSchema || '{"type": "object", "properties": {"value": {"type": "number"}}}'}
-                          onChange={(e) => setEditingNode({
-                            ...editingNode,
-                            data: { 
-                              ...editingNode.data, 
-                              config: { ...editingNode.data.config, inputSchema: e.target.value }
-                            }
-                          })}
-                          rows={3}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder='{"type": "object", "properties": {"value": {"type": "number"}}}'
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {editingNode.data.category === 'notification' && (
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Notification Settings</h3>
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Channel <span className="text-red-500">*</span>
-                        </label>
-                        <select
-                          value={editingNode.data.config?.channel || 'Slack'}
-                          onChange={(e) => setEditingNode({
-                            ...editingNode,
-                            data: { 
-                              ...editingNode.data, 
-                              config: { ...editingNode.data.config, channel: e.target.value }
-                            }
-                          })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        >
-                          <option value="Slack">Slack</option>
-                          <option value="Teams">Microsoft Teams</option>
-                          <option value="SMS">SMS</option>
-                          <option value="Discord">Discord</option>
-                        </select>
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Message <span className="text-red-500">*</span>
-                        </label>
-                        <textarea
-                          value={editingNode.data.config?.message || 'Workflow completed: {{workflowName}}'}
-                          onChange={(e) => setEditingNode({
-                            ...editingNode,
-                            data: { 
-                              ...editingNode.data, 
-                              config: { ...editingNode.data.config, message: e.target.value }
-                            }
-                          })}
-                          rows={3}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="Workflow completed: {{workflowName}}"
-                        />
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Webhook URL
-                        </label>
-                        <input
-                          type="url"
-                          value={editingNode.data.config?.webhookUrl || ''}
-                          onChange={(e) => setEditingNode({
-                            ...editingNode,
-                            data: { 
-                              ...editingNode.data, 
-                              config: { ...editingNode.data.config, webhookUrl: e.target.value }
-                            }
-                          })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="https://hooks.slack.com/services/..."
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Action Buttons */}
-                <div className="flex justify-end space-x-3 pt-4 border-t">
-                  <button
-                    onClick={() => setShowNodeEditor(false)}
-                    className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={() => {
-                      if (editingNode) {
-                        handleNodeUpdate(editingNode.id, editingNode.data);
-                        setShowNodeEditor(false);
-                        setEditingNode(null);
-                      }
-                    }}
-                    className="px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:shadow-lg transition-all duration-200"
-                  >
-                    Save Changes
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Execution Results Modal */}
+      {<ExecutionModal />}
     </div>
   );
 }
